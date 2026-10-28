@@ -1,0 +1,13 @@
+# Deaths: humans with an English Wikipedia article, at least 30 Wikidata sitelinks,
+# and a day-precision date of death in [{start}, {end}). Run once per half-year,
+# because the full decade in one query times out. Deprecated statements are skipped.
+SELECT ?person ?article ?dod ?prec ?sl WHERE {
+  ?person wikibase:sitelinks ?sl . FILTER(?sl >= 30)
+  ?person p:P570 ?st .
+  ?st psv:P570 [ wikibase:timeValue ?dod ; wikibase:timePrecision ?prec ] ;
+      wikibase:rank ?rank .
+  FILTER(?rank != wikibase:DeprecatedRank)
+  FILTER(?dod >= "{start}T00:00:00Z"^^xsd:dateTime && ?dod < "{end}T00:00:00Z"^^xsd:dateTime)
+  ?person wdt:P31 wd:Q5 .
+  ?article schema:about ?person ; schema:isPartOf <https://en.wikipedia.org/> .
+}

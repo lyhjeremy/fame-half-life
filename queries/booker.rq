@@ -1,0 +1,7 @@
+# Booker Prize winners by year (qualifier P585, year precision). The announcement
+# date for each year comes from the English Wikipedia article on that year's prize.
+SELECT ?person ?t WHERE {
+  ?person p:P166 ?st . ?st ps:P166 wd:Q160082 ; pq:P585 ?t .
+  FILTER(?t >= "2016-01-01T00:00:00Z"^^xsd:dateTime && ?t < "2026-01-01T00:00:00Z"^^xsd:dateTime)
+  ?person wdt:P31 wd:Q5 .
+}

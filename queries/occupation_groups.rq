@@ -1,0 +1,7 @@
+# Which root occupation each occupation (P106 value) descends from, through
+# subclass of (P279). Run in batches of occupations; {values} is filled by the script.
+SELECT ?occ ?root WHERE {
+  VALUES ?occ { {values} }
+  VALUES ?root { {roots} }
+  ?occ wdt:P279* ?root .
+}

@@ -1,0 +1,9 @@
+# Academy Award winners in the four acting categories and Best Director, with the
+# ceremony each win belongs to (qualifier P805) and that ceremony's date (P585).
+SELECT ?award ?person ?cer ?cerDate WHERE {
+  VALUES ?award { wd:Q103916 wd:Q103618 wd:Q106291 wd:Q106301 wd:Q103360 }
+  ?person p:P166 ?st . ?st ps:P166 ?award ; pq:P805 ?cer .
+  ?cer wdt:P585 ?cerDate .
+  FILTER(?cerDate >= "2016-01-01T00:00:00Z"^^xsd:dateTime && ?cerDate < "2025-11-01T00:00:00Z"^^xsd:dateTime)
+  ?person wdt:P31 wd:Q5 .
+}
