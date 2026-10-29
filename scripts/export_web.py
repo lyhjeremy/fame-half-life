@@ -49,10 +49,10 @@ def main():
     groups = []
     for e in fam.itertuples():
         groups.append({"label": e.group, "kind": "event", "n": int(e.n), "hl": r(e.half_life_median, 1),
-                       "cum": r(e.cum_half_median, 1), "lift": r(e.lift_median), "peak": r(e.peak_ratio_median, 1)})
+                       "late": r(e.late_share_median), "lift": r(e.lift_median), "peak": r(e.peak_ratio_median, 1)})
     for e in occ[occ.event_type == "death"].itertuples():
         groups.append({"label": e.occupation_group, "kind": "occupation", "n": int(e.n), "hl": r(e.half_life_median, 1),
-                       "cum": r(e.cum_half_median, 1), "lift": r(e.lift_median), "peak": r(e.peak_ratio_median, 1)})
+                       "late": r(e.late_share_median), "lift": r(e.lift_median), "peak": r(e.peak_ratio_median, 1)})
 
     data = {"events": idx, "avg": avg, "wins": wins, "lift": lift, "groups": groups}
     (ROOT / "assets/data.json").write_text(json.dumps(data, separators=(",", ":")))

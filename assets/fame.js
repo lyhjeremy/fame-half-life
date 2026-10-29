@@ -124,8 +124,9 @@
     else hl = m.halfLife + (m.halfLife === 1 ? " day" : " days");
     var best = f ? MODEL[f.best] : (m.spike ? "too few days to fit" : "not fitted");
     function s(k, v, cls) { return '<div class="stat"><div class="k">' + k + '</div><div class="v' + (cls ? " " + cls : "") + '">' + v + "</div></div>"; }
+    var late = m.lateShare === m.lateShare && m.lateShare != null ? Math.round(100 * m.lateShare) + "%" : "n/a";
     return s("Baseline", fmtN(m.baseline) + "/day") + s("Peak", fmtX(m.peakRatio)) + s("Half-life", hl, "hl") +
-      s("A year later", m.lift === m.lift ? fmtX(m.lift) : "not yet") + s("Best fit", best);
+      s("After week one", late) + s("A year later", m.lift === m.lift ? fmtX(m.lift) : "not yet") + s("Best fit", best);
   }
   function noteFor(ev) {
     var m = ev.m, f = ev.fit, out = [];
@@ -395,7 +396,8 @@
     var ref = logx ? 1 : null;
     if (ref) el("line", { x1: x(ref), x2: x(ref), y1: T, y2: H - 20, "class": "s-gray s-dash" }, svg);
     var ticks = logx ? [0.5, 1, 2, 4].filter(function (t) { return t >= lo && t <= hi; }) : niceTicks(0, hi, 4);
-    ticks.forEach(function (t) { el("text", { x: x(t), y: H - 4, "text-anchor": "middle", "font-size": 11 }, svg, logx ? t + "x" : t); });
+    function fv(v) { return logx ? fmtX(v) : Math.round(100 * v) + "%"; }
+    ticks.forEach(function (t) { el("text", { x: x(t), y: H - 4, "text-anchor": "middle", "font-size": 11 }, svg, logx ? t + "x" : Math.round(100 * t) + "%"); });
     var prevKind = rows.length ? rows[0].kind : null;
     rows.forEach(function (r, i) {
       var y0 = T + i * 26 + 12 + (r.kind !== rows[0].kind ? 10 : 0);
@@ -404,7 +406,7 @@
       el("text", { x: L - 10, y: y0 + 4, "text-anchor": "end", "class": "lab", "font-size": 12 }, svg, name);
       el("line", { x1: x(logx ? lo : 0), x2: x(r[metric]), y1: y0, y2: y0, "class": "grid-l", stroke: "var(--rule)" }, svg);
       el("circle", { cx: x(r[metric]), cy: y0, r: 5, "class": r.kind === "event" && r.label !== "Death" ? "f-blue" : "f-red" }, svg);
-      el("text", { x: x(r[metric]) + 9, y: y0 + 4, "font-size": 11 }, svg, (logx ? fmtX(r[metric]) : r[metric]) + "  n=" + r.n);
+      el("text", { x: x(r[metric]) + 9, y: y0 + 4, "font-size": 11 }, svg, fv(r[metric]) + "  n=" + r.n);
     });
   }
   function niceTicks(lo, hi, n) {
@@ -418,8 +420,8 @@
     var avgRange = "full";
     if ($("avg-range")) segButtons($("avg-range"), [["full", "Days -60 to +365"], ["zoom", "Days -14 to +60"]], avgRange, function (r) { avgRange = r; drawAvg(r); });
     drawAvg(avgRange); drawWins(); drawLift();
-    var gm = $("groups-metric") ? $("groups-metric").dataset.start || "cum" : "cum";
-    if ($("groups-metric")) segButtons($("groups-metric"), [["cum", "Days to half the extra views"], ["lift", "Lift after a year"]], gm, function (m) { gm = m; drawGroups(m); });
+    var gm = $("groups-metric") ? $("groups-metric").dataset.start || "late" : "late";
+    if ($("groups-metric")) segButtons($("groups-metric"), [["late", "Extra views after week one"], ["lift", "Lift after a year"]], gm, function (m) { gm = m; drawGroups(m); });
     drawGroups(gm);
     var t;
     window.addEventListener("resize", function () { clearTimeout(t); t = setTimeout(function () { drawAvg(avgRange); drawWins(); drawLift(); drawGroups(gm); }, 150); });

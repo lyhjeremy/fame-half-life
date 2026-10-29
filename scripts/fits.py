@@ -87,6 +87,8 @@ def measures(views, weekday0, win=7, cap=None):
         tail = np.nan_to_num(ex[idx(peak_day):idx(POST) + 1].clip(min=0))
         cum = np.cumsum(tail)
         out["cum_half_day"] = int(np.searchsorted(cum, 0.5 * cum[-1])) if cum[-1] > 0 else np.nan
+        # Share of those excess views that arrived more than a week after the peak day.
+        out["late_share"] = float(tail[8:].sum() / cum[-1]) if cum[-1] > 0 else np.nan
     lw = a[idx(LIFT[0]):idx(LIFT[1]) + 1]
     lw = lw[~np.isnan(lw)]
     if base > 0 and len(lw) >= MIN_LIFT_DAYS:

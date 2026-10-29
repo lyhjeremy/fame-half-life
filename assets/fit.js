@@ -56,6 +56,13 @@
         if (!isnan(sm[t]) && sm[t] < 0.5 * pex) { out.halfLife = t - idx(peakDay); break; }
       }
       out.halfLifeCensored = isnan(out.halfLife);
+      // Share of the first year's excess views (from the peak day on) that arrived more than a week after the peak.
+      var tot = 0, late = 0;
+      for (var k = idx(peakDay); k <= idx(POST); k++) {
+        var e = isnan(ex[k]) ? 0 : Math.max(0, ex[k]);
+        tot += e; if (k - idx(peakDay) >= 8) late += e;
+      }
+      out.lateShare = tot > 0 ? late / tot : NaN;
     }
     var lw = a.slice(idx(LIFT[0]), idx(LIFT[1]) + 1).filter(function (x) { return !isnan(x); });
     if (base > 0 && lw.length >= MIN_LIFT_DAYS) out.lift = median(lw) / base;

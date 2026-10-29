@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fame Half-Life: how fast the world stops looking someone up</title>
+<meta name="description" content="Daily English Wikipedia pageviews around {{nDeaths}} deaths and {{nAwards}} major awards, 2016 to 2025. Half the extra attention is gone {{deathHalfPhrase}} after the peak; a year on, a page draws a median {{deathLift}} times its old traffic after a death and {{awardLift}} times after an award.">
+<meta name="theme-color" content="#EEEDE6">
+<meta property="og:title" content="Fame Half-Life">
+<meta property="og:description" content="How fast attention fades after a death or a major award, measured in daily Wikipedia pageviews, with a live lookup for any article.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://lyhjeremy.github.io/fame-half-life/">
+<link rel="stylesheet" href="ledger.css">
+<link rel="stylesheet" href="language.css">
+<link rel="stylesheet" href="assets/charts.css">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<a class="bar-link" href="overview/">Read the full write-up: method, model comparison and limits</a>
+<main id="main" class="wrap wrap-wide">
+
+<header>
+  <p class="meta">English Wikipedia pageviews, {{nDeaths}} deaths and {{nAwards}} awards, 2016 to 2025</p>
+  <h1>Fame half-life</h1>
+  <p class="gloss">How fast the world stops looking someone up.</p>
+  <p class="lede">{{headline}}</p>
+</header>
+
+<section class="sec" aria-labelledby="s-look">
+  <p class="label">The dataset</p>
+  <h2 id="s-look">Look up anyone in the dataset</h2>
+  <p>Every person here died, or won a Nobel Prize, an acting or directing Oscar, the Ballon d'Or or the Booker Prize, between January 2016 and October 2025. Pick one to see their daily views from 60 days before to a year after, the baseline, the fitted decay and the half-life.</p>
+  <div class="panel">
+    <div class="row">
+      <div class="field">
+        <label for="ds-q">Name</label>
+        <input id="ds-q" list="ds-list" autocomplete="off" spellcheck="false" data-start="{{startName}}" placeholder="Start typing a name">
+        <datalist id="ds-list"></datalist>
+      </div>
+      <div></div>
+      <button class="btn btn-primary" id="ds-go" type="button">Show</button>
+    </div>
+    <div class="err hidden" id="ds-err" role="alert"></div>
+    <div data-loading class="skeleton sk-chart" aria-hidden="true"></div>
+    <div class="hidden" id="ds-sk" aria-hidden="true"><div class="skeleton sk-line skeleton--w40"></div><div class="skeleton sk-stats"></div><div class="skeleton sk-chart"></div></div>
+    <div class="hidden" id="ds-out" aria-live="polite">
+      <p class="who" id="ds-who"></p>
+      <div class="stats" id="ds-stats"></div>
+      <div class="chart-head"><div class="seg" role="group" aria-label="Range" id="ds-range"></div></div>
+      <figure class="chart">
+        <svg id="ds-svg" viewBox="0 0 900 300" role="img" aria-labelledby="ds-svg-t" tabindex="0"><title id="ds-svg-t">Daily views for the selected person, log scale, with baseline, fitted decay and half-life. Use the left and right arrow keys to move the readout.</title></svg>
+        <div class="readout" id="ds-read" aria-live="polite"></div>
+        <p class="legend"><span class="l-gray">daily views</span><span class="l-gray l-dash">baseline</span><span class="l-red">fitted decay</span><span class="l-blue">half-life</span></p>
+        <figcaption id="ds-note"></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="sec" aria-labelledby="s-live">
+  <p class="label">Live</p>
+  <h2 id="s-live">Try any Wikipedia article</h2>
+  <p>Type any English Wikipedia article title. Your browser asks Wikimedia for the article's daily views since July 2015 and fits the same three curves here, in the page. Leave the date empty to use the busiest day on record.</p>
+  <form class="panel" id="lv-form" novalidate>
+    <div class="row">
+      <div class="field">
+        <label for="lv-title">Article title</label>
+        <input id="lv-title" autocomplete="off" spellcheck="false" placeholder="e.g. Taylor Swift" required>
+      </div>
+      <div class="field">
+        <label for="lv-date">Event date (optional)</label>
+        <input id="lv-date" type="date" min="2015-08-30">
+      </div>
+      <button class="btn btn-primary" id="lv-go" type="submit">Fetch and fit</button>
+    </div>
+    <p class="hint">This sends the article title to Wikimedia from your browser. Nothing goes to any server of this project. <a href="privacy/">Privacy</a>.</p>
+    <div class="err hidden" id="lv-err" role="alert"></div>
+    <div class="hidden" id="lv-sk" aria-hidden="true"><div class="skeleton sk-line skeleton--w40"></div><div class="skeleton sk-stats"></div><div class="skeleton sk-chart"></div></div>
+    <div class="hidden" id="lv-out" aria-live="polite">
+      <p class="who" id="lv-who"></p>
+      <div class="stats" id="lv-stats"></div>
+      <div class="chart-head"><div class="seg" role="group" aria-label="Range" id="lv-range"></div></div>
+      <figure class="chart">
+        <svg id="lv-svg" viewBox="0 0 900 300" role="img" aria-labelledby="lv-svg-t" tabindex="0"><title id="lv-svg-t">Daily views for the article you looked up, log scale, with baseline, fitted decay and half-life.</title></svg>
+        <div class="readout" id="lv-read" aria-live="polite"></div>
+        <p class="legend"><span class="l-gray">daily views</span><span class="l-gray l-dash">baseline</span><span class="l-red">fitted decay</span><span class="l-blue">half-life</span></p>
+        <figcaption id="lv-note"></figcaption>
+      </figure>
+    </div>
+  </form>
+</section>
+
+<section class="sec" aria-labelledby="s-fade">
+  <p class="label">The fade</p>
+  <h2 id="s-fade">{{fadeTitle}}</h2>
+  <p>{{fadeText}}</p>
+  <div class="chart-head"><div class="seg" role="group" aria-label="Range" id="avg-range"></div></div>
+  <figure class="chart">
+    <div data-loading class="skeleton sk-chart" aria-hidden="true"></div>
+    <svg id="avg" viewBox="0 0 900 320" role="img" aria-labelledby="avg-t" tabindex="0"><title id="avg-t">{{avgAlt}}</title></svg>
+    <div class="readout" id="avg-read" aria-live="polite"></div>
+    <p class="legend"><span class="l-red">deaths</span><span class="l-blue">awards</span><span class="l-gray l-dash">baseline</span></p>
+    <figcaption>Median across events of daily views divided by each event's baseline, on a log scale; shading is the middle half of events. Day-of-week effects removed. Source: Wikimedia pageviews API, user agents only.</figcaption>
+  </figure>
+</section>
+
+<section class="sec" aria-labelledby="s-curve">
+  <p class="label">The curve</p>
+  <h2 id="s-curve">{{curveTitle}}</h2>
+  <p>{{curveText}}</p>
+  <figure class="chart">
+    <div data-loading class="skeleton sk-stats" aria-hidden="true"></div>
+    <svg id="wins" viewBox="0 0 900 180" role="img" aria-labelledby="wins-t"><title id="wins-t">{{winsAlt}}</title></svg>
+    <p class="legend"><span class="l-blue">biexponential</span><span class="l-red">power law</span><span class="l-gray">exponential</span></p>
+    <figcaption>Share of events where each model has the lowest AIC, fitted to log excess views from the day after the peak to day +365. Events with a visible spike and at least 30 days above baseline.</figcaption>
+  </figure>
+</section>
+
+<section class="sec" aria-labelledby="s-settle">
+  <p class="label">The aftermath</p>
+  <h2 id="s-settle">{{settleTitle}}</h2>
+  <p>{{settleText}}</p>
+  <figure class="chart">
+    <div data-loading class="skeleton sk-chart" aria-hidden="true"></div>
+    <svg id="lift" viewBox="0 0 900 280" role="img" aria-labelledby="lift-t"><title id="lift-t">{{liftAlt}}</title></svg>
+    <p class="legend"><span class="l-red">deaths</span><span class="l-blue">awards</span></p>
+    <figcaption>Share of events by lift: median daily views on days +335 to +365 divided by the baseline (median of days -60 to -8). The dashed line is no change.</figcaption>
+  </figure>
+</section>
+
+<section class="sec" aria-labelledby="s-who">
+  <p class="label">Who lasts</p>
+  <h2 id="s-who">{{whoTitle}}</h2>
+  <p>{{whoText}}</p>
+  <div class="chart-head"><div class="seg" role="group" aria-label="Measure" id="groups-metric" data-start="late"></div></div>
+  <figure class="chart">
+    <div data-loading class="skeleton sk-chart" aria-hidden="true"></div>
+    <svg id="groups" viewBox="0 0 900 420" role="img" aria-labelledby="groups-t"><title id="groups-t">Median share of the first year's extra views that came after the first week, and median lift, by event type and, for deaths, by occupation.</title></svg>
+    <figcaption>Medians by group; groups with fewer than 15 events are left out. Occupation is the first occupation on the person's Wikidata item that maps to one of nine groups.</figcaption>
+  </figure>
+</section>
+
+<section class="sec" aria-labelledby="s-limits">
+  <p class="label">Limits</p>
+  <h2 id="s-limits">What this cannot show</h2>
+  <ul>
+    <li>English Wikipedia only. A view is someone looking a person up, which is not the same as caring about them.</li>
+    <li>The fame floor of 30 Wikidata sitelinks decides who counts as famous and leans toward people known in many countries. It is today's count, so some people clear it because of the death itself.</li>
+    <li>Some automated traffic passes the <code>user</code> filter. Capping any day above 50 times its neighbors {{botPhrase}}.</li>
+    <li>A death or an award can coincide with other news about the same person, such as a film release or a scandal, and nothing in the data separates the two.</li>
+    <li>For the Academy Awards the baseline window falls in awards season, after the nominations, so the "before" traffic is already raised. That is part of why awards settle below their baseline.</li>
+    <li>{{halfLifeLimit}}</li>
+  </ul>
+</section>
+
+<footer class="site-footer">
+  <p><a href="overview/">Write-up</a><a href="https://github.com/lyhjeremy/fame-half-life">Code and data</a><a href="privacy/">Privacy</a><a href="https://lyhjeremy.com">Jeremy Lee</a></p>
+  <p>Sources: Wikimedia pageviews API (en.wikipedia, all access, user agents), Wikidata, the Nobel Prize API, English Wikipedia articles on each year's Ballon d'Or and Booker Prize. Event list frozen on 28 October 2026 before any pageview was fetched; data to {{lastDay}}.</p>
+</footer>
+</main>
+<noscript><p class="wrap small">The charts and lookups on this page need JavaScript. The findings, with static figures, are in the <a href="overview/">write-up</a>.</p></noscript>
+<script src="assets/fit.js"></script>
+<script src="assets/fame.js"></script>
+</body>
+</html>

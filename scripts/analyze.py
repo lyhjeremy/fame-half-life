@@ -99,6 +99,7 @@ def main():
     m, fitted, adj = per_event(kept, s)
     m = kept[["event_id", "qid", "title", "event_type", "award", "event_date", "sitelinks", "occupation_group",
               "age_at_event"]].merge(m, on="event_id")
+    m["age_at_event"] = pd.to_numeric(m.age_at_event, errors="coerce")
     m["award_family"] = m.award.map(award_family)
     m["year"] = m.event_date.str[:4].astype(int)
     m["log_baseline"] = np.log(m.baseline.where(m.baseline > 0))
@@ -144,6 +145,7 @@ def main():
             "half_life_censored": int(sp.half_life_censored.sum()),
             "half_life_dist": sp.half_life.value_counts().sort_index().head(10).to_dict(),
             "cum_half_median": q(sp.cum_half_day, 50), "cum_half_p25": q(sp.cum_half_day, 25), "cum_half_p75": q(sp.cum_half_day, 75),
+            "late_share_median": q(sp.late_share, 50), "late_share_p25": q(sp.late_share, 25), "late_share_p75": q(sp.late_share, 75),
             "lift_n": int(g.lift.notna().sum()),
             "lift_median": q(g.lift, 50), "lift_p25": q(g.lift, 25), "lift_p75": q(g.lift, 75),
             "lift_share_above1": float((g.lift.dropna() > 1).mean()),
@@ -225,13 +227,13 @@ def main():
     occ = (m.groupby(["event_type", "occupation_group"])
              .agg(n=("event_id", "size"), spikes=("spike", "sum"),
                   half_life_median=("half_life", "median"), cum_half_median=("cum_half_day", "median"),
-                  lift_median=("lift", "median"), baseline_median=("baseline", "median"),
+                  late_share_median=("late_share", "median"), lift_median=("lift", "median"), baseline_median=("baseline", "median"),
                   peak_ratio_median=("peak_ratio", "median")).reset_index())
     occ.to_csv(TAB / "by_occupation.csv", index=False, float_format="%.4g")
     fam = (m.assign(group=np.where(m.event_type == "death", "Death", m.award_family))
              .groupby("group").agg(n=("event_id", "size"), share_spike=("spike", "mean"),
                                    half_life_median=("half_life", "median"), cum_half_median=("cum_half_day", "median"),
-                                   lift_median=("lift", "median"), peak_ratio_median=("peak_ratio", "median"),
+                                   late_share_median=("late_share", "median"), lift_median=("lift", "median"), peak_ratio_median=("peak_ratio", "median"),
                                    baseline_median=("baseline", "median")).reset_index())
     fam.to_csv(TAB / "by_event_group.csv", index=False, float_format="%.4g")
 

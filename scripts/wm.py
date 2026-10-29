@@ -8,9 +8,9 @@ on 429 and 5xx answers.
 import hashlib, json, os, pathlib, threading, time, urllib.error, urllib.parse, urllib.request
 
 UA = "fame-half-life/1.0 (https://github.com/lyhjeremy/fame-half-life; https://lyhjeremy.com)"
-MIN_GAP = 0.5                 # seconds between live requests, across all threads
+MIN_GAP = 0.5                 # seconds between live requests to one host, across all threads
 _lock = threading.Lock()
-_last = [0.0]
+_last = {}
 CACHE = pathlib.Path(os.environ.get("FAME_CACHE", pathlib.Path.home() / "data-cache/fame-half-life"))
 SPARQL = "https://query.wikidata.org/sparql"
 
@@ -22,7 +22,7 @@ def _path(kind, key):
     return p
 
 
-def get_json(url, kind="misc", data=None, tries=8, timeout=90):
+def get_json(url, kind="misc", data=None, tries=10, timeout=90):
     """GET (or POST when data is given) a JSON URL, cached. A 404 is cached as {"_status": 404}."""
     key = url + ("|" + data if data else "")
     p = _path(kind, key)
@@ -30,11 +30,14 @@ def get_json(url, kind="misc", data=None, tries=8, timeout=90):
         return json.loads(p.read_text())
     wait = 5.0
     for attempt in range(tries):
-        with _lock:
-            gap = MIN_GAP - (time.time() - _last[0])
-            if gap > 0:
-                time.sleep(gap)
-            _last[0] = time.time()
+        host = urllib.parse.urlsplit(url).netloc
+        while True:
+            with _lock:
+                gap = MIN_GAP - (time.time() - _last.get(host, 0.0))
+                if gap <= 0:
+                    _last[host] = time.time()
+                    break
+            time.sleep(gap)
         req = urllib.request.Request(url, data=data.encode() if data else None,
                                      headers={"User-Agent": UA, "Accept": "application/json",
                                               **({"Content-Type": "application/x-www-form-urlencoded"} if data else {})})
@@ -50,11 +53,14 @@ def get_json(url, kind="misc", data=None, tries=8, timeout=90):
                 return out
             if e.code in (429, 500, 502, 503, 504) and attempt < tries - 1:
                 ra = e.headers.get("Retry-After")
+                with open(CACHE / "throttle.log", "a") as lf:
+                    lf.write(f"{time.strftime('%H:%M:%S')} {e.code} {urllib.parse.urlsplit(url).netloc} retry-after={ra} wait={wait}\n")
                 time.sleep(float(ra) if ra and ra.isdigit() else wait)
                 wait *= 2
                 continue
             raise
-        except (urllib.error.URLError, TimeoutError):
+        except (urllib.error.URLError, TimeoutError, ConnectionError, OSError):
+            # network faults (DNS failure, reset connection) are retried, never cached as missing data
             if attempt < tries - 1:
                 time.sleep(wait)
                 wait *= 2

@@ -1,0 +1,38 @@
+/* Chart styles shared by the landing page and the write-up (overview/).
+   Each page maps these tokens to its own palette: --signal, --signal-2, --edge, --panel,
+   --rule, --ink, --ink-2, --paper, --font-body, --font-mono. */
+.skeleton{background:var(--rule)}
+@media (prefers-reduced-motion:no-preference){
+  .skeleton{animation:fhl-sk 1.6s ease-in-out infinite}
+  @keyframes fhl-sk{0%,100%{opacity:1}50%{opacity:.55}}}
+.sk-chart{height:260px;margin-top:16px}
+.sk-stats{height:56px;margin-top:16px}
+.hidden{display:none}
+.chart-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:8px 16px;margin-top:16px}
+.chart{margin:var(--s2) 0 var(--s1);position:relative}
+.chart svg{width:100%;height:auto;display:block;overflow:visible}
+.chart svg:focus-visible{outline:2px solid var(--signal);outline-offset:4px}
+.readout{min-height:1.6em;font-family:var(--font-mono);font-size:.82rem;color:var(--ink);margin-top:var(--s1)}
+.legend{display:flex;flex-wrap:wrap;gap:var(--s1) var(--s3);font-size:.85rem;color:var(--ink-2);margin:var(--s1) 0 0}
+.legend span::before{content:"";display:inline-block;width:18px;height:0;border-top:2px solid currentColor;vertical-align:middle;margin-right:6px}
+.legend .l-red{color:var(--signal)} .legend .l-blue{color:var(--signal-2)} .legend .l-gray{color:var(--edge)}
+.legend .l-dash::before{border-top-style:dashed}
+.legend span{color:var(--ink-2)}
+.legend .l-red::before{border-color:var(--signal)} .legend .l-blue::before{border-color:var(--signal-2)}
+.legend .l-gray::before{border-color:var(--edge)}
+svg text{font-family:var(--font-body);fill:var(--ink-2)}
+svg .lab{fill:var(--ink);font-size:13px}
+svg .grid line{stroke:var(--rule);stroke-width:1}
+svg .base{stroke:var(--edge);stroke-width:1}
+svg .s-red{stroke:var(--signal);fill:none;stroke-width:2.2}
+svg .s-blue{stroke:var(--signal-2);fill:none;stroke-width:2.2}
+svg .s-raw{stroke:var(--ink-2);fill:none;stroke-width:1}
+svg .s-gray{stroke:var(--edge);fill:none;stroke-width:1.2}
+svg .s-dash{stroke-dasharray:6 4}
+svg .f-red{fill:var(--signal)} svg .f-blue{fill:var(--signal-2)} svg .f-gray{fill:var(--edge)}
+svg .band-red{fill:var(--signal);opacity:.14} svg .band-blue{fill:var(--signal-2);opacity:.14}
+svg .cursor{stroke:var(--ink);stroke-width:1}
+.seg{display:inline-flex;flex-wrap:wrap}
+.seg .btn{font-size:.8rem;padding:4px 10px;margin-left:-1px}
+.seg .btn[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+

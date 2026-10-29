@@ -20,7 +20,7 @@ const out = cases.map(c => {
   const r = F.measures(v, c.wd0, 7);
   const f = r.m.spike ? F.fitAll(r.excess, r.m.peakDay) : null;
   return {baseline: r.m.baseline, peak_day: r.m.peakDay, half_life: isNaN(r.m.halfLife) ? null : r.m.halfLife,
-          lift: isNaN(r.m.lift) ? null : r.m.lift, best: f ? f.best : null, aic: f ? f.aic : null};
+          lift: isNaN(r.m.lift) ? null : r.m.lift, late: r.m.lateShare === undefined || isNaN(r.m.lateShare) ? null : r.m.lateShare, best: f ? f.best : null, aic: f ? f.aic : null};
 });
 process.stdout.write(JSON.stringify(out));
 """
@@ -38,7 +38,8 @@ def main(n=60):
         f = fits.fit_all(ex, m["peak_day"]) if m["spike"] else None
         py.append({"baseline": m["baseline"], "peak_day": m["peak_day"],
                    "half_life": None if np.isnan(m["half_life"]) else m["half_life"],
-                   "lift": None if np.isnan(m["lift"]) else m["lift"], "best": f["best"] if f else None,
+                   "lift": None if np.isnan(m["lift"]) else m["lift"],
+                   "late": None if np.isnan(m.get("late_share", np.nan)) else m["late_share"], "best": f["best"] if f else None,
                    "aic": f["aic"] if f else None})
         cases.append({"v": [None if np.isnan(x) else x for x in v], "wd0": wd0})
     out = subprocess.run(["node", "-e", JS, str(ROOT / "assets/fit.js")], input=json.dumps(cases),
@@ -50,6 +51,8 @@ def main(n=60):
         same = (abs(a["baseline"] - b["baseline"]) < 1e-6 * max(1, a["baseline"]) and a["peak_day"] == b["peak_day"]
                 and a["half_life"] == b["half_life"] and a["best"] == b["best"]
                 and ((a["lift"] is None and b["lift"] is None) or abs(a["lift"] - b["lift"]) < 1e-9 * max(1, a["lift"])))
+        if (a["late"] is None) != (b["late"] is None) or (a["late"] is not None and abs(a["late"] - b["late"]) > 1e-9):
+            same = False
         if a["aic"]:
             d = max(abs(a["aic"][k] - b["aic"][k]) for k in a["aic"])
             worst = max(worst, d)
