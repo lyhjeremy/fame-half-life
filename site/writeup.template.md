@@ -2,6 +2,10 @@
 
 These notes go with the [interactive page](https://lyhjeremy.github.io/fame-half-life/) and the [write-up](https://lyhjeremy.github.io/fame-half-life/overview/). Every number below is filled in from `results/summary.json` by `scripts/build_site.py`.
 
+## Correction, 29 October 2026
+
+{{correction}} Each change, with its reason, is in `docs/decisions.md` (entries 26 to 33).
+
 ## Question
 
 When someone suddenly becomes news, how fast does the world stop looking them up? The data are daily English Wikipedia pageviews around deaths and major awards from 2016 to October 2025. Three things are measured: how fast the spike halves, which curve the fade follows, and whether attention settles back where it was.
@@ -20,13 +24,13 @@ At fetch time, {{nRenamed}} events were dropped because the article was moved to
 
 Views are first divided by day-of-week factors from the baseline window (the median event's busiest weekday runs {{dowAmp}} times its quietest). Then, per event:
 
-- baseline: median views, days -60 to -8 (median {{deathBase}} a day for deaths, {{awardBase}} for awards);
+- baseline: median views, days -60 to -8 (median {{deathBase}} a day for deaths, {{awardBase}} for awards); for the Academy Awards, the 53 days ending 8 days before that year's nominations;
 - peak: maximum of days 0 to +3;
-- half-life: days from the peak until the centered 7-day mean of excess views falls below half the peak excess;
+- half-life: days from the smoothed peak until the centered 7-day mean of excess views falls below half of it;
 - after week one: share of the first year's excess views that arrive more than 7 days after the peak;
 - lift: median of days +335 to +365 divided by baseline.
 
-A spike counts as visible when the peak is at least twice the baseline. {{deathNoSpike}}% of deaths and {{awardNoSpike}}% of awards have none.
+A spike counts as visible when the peak is at least twice the baseline. {{spikeText}}
 
 ## Results
 
@@ -42,9 +46,9 @@ A spike counts as visible when the peak is at least twice the baseline. {{deathN
 - The 30-sitelink floor is today's count and favors people known in many countries.
 - Some automated traffic passes the `user` filter.
 - Other news about the same person at the same time inflates the spike, and the data cannot separate it.
-- Oscar baselines fall in awards season, after the nominations.
+- Awards season raises an Oscar winner's traffic for months, so any "before" window is a choice: the Oscar lift is {{oscarLiftPre}}, {{oscarLiftSpec}} or {{oscarLiftEarly}} depending on it.
 - The award sample is small, so differences between prizes are descriptive.
-- The half-life as specified saturates at one day for most events; see Checks.
+- {{halfLifeLimit}}
 
 ## Reference
 

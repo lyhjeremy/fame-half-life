@@ -4,13 +4,12 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Fame Half-Life: how fast attention fades after a death or a major award</title>
-<meta name="description" content="Daily English Wikipedia pageviews around 1,905 deaths and 175 awards, 2016 to 2025. The spike halves within 1 day of the peak; a year later a page draws 1.08 times its old traffic after a death, 8.78 times after a Nobel Prize and 0.38 times after an Oscar." />
+<meta name="description" content="Daily English Wikipedia pageviews around 1,905 deaths and 178 awards, 2016 to 2025. Half the extra traffic is gone in about 2 days; a year later a page draws 1.08 times its old traffic after a death and 4.20 times after an award. Corrected 29 October 2026." />
 <meta name="theme-color" content="#EEEDE6" />
 <meta property="og:title" content="Fame Half-Life" />
 <meta property="og:description" content="How fast the world stops looking someone up, measured in daily Wikipedia pageviews around deaths and major awards." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://lyhjeremy.github.io/fame-half-life/overview/" />
-<link href="" rel="stylesheet" />
 <style>
   :root {
     --paper: #EEEDE6;
@@ -257,6 +256,7 @@
 </style>
 </head>
 <body>
+<link rel="icon" href="data:,">
 <link rel="stylesheet" href="../assets/charts.css">
 
 <div class="wrap">
@@ -266,18 +266,18 @@
   </header>
 
   <section class="hero">
-    <p class="kicker">2,080 events, one year of attention each</p>
-    <h1>The spike is gone in days. What is left depends on who you were before.</h1>
-    <p class="hero-sub">Daily English Wikipedia views around 1,905 deaths and 175 major awards, 2016 to 2025. On the median death a page draws 200 times its usual traffic at the peak, and half the excess is gone within 1 day. The fade follows two exponentials, a fast one with a time constant of about 5.4 days and a slow one that barely moves within a year. A year on, the page draws 1.08 times its old traffic.</p>
+    <p class="kicker">2,083 events, one year of attention each</p>
+    <h1>Half the spike is gone in about 2 days. A little of it stays for a year.</h1>
+    <p class="hero-sub">Daily English Wikipedia views around 1,905 deaths and 178 major awards, 2016 to 2025. On the median death a page draws 206 times its usual traffic at the peak, and half the extra traffic is gone in about 2 days. A year on, the page draws 1.08 times its old traffic; for award winners the figure is 4.20.</p>
     <div class="cta-row">
       <a class="btn btn-primary" href="../">Look someone up</a>
       <a class="textlink" href="https://github.com/lyhjeremy/fame-half-life">Code and data</a>
       <a class="textlink" href="https://github.com/lyhjeremy/fame-half-life/blob/main/writeup.md">Long-form notes</a>
     </div>
     <div class="claims">
-      <div class="claim"><div class="n">200x</div><p>the usual daily traffic, on the peak day after a death (median of 1,905 deaths). The peak falls on the day after the death in 43% of them.</p></div>
-      <div class="claim"><div class="n">90%</div><p>of 1,947 fitted events follow a biexponential fade better than a single exponential or a power law, by AIC.</p></div>
-      <div class="claim"><div class="n">1.08x</div><p>the old traffic, a year after a death (median). After a Nobel Prize it is 8.78x; after an Oscar, 0.38x.</p></div>
+      <div class="claim"><div class="n">206x</div><p>the usual daily traffic, on the peak day after a death (median of 1,905 deaths). The peak falls on the day after the death in 44% of them.</p></div>
+      <div class="claim"><div class="n">2 days</div><p>until half the extra traffic is gone after a death (median, smoothed over a week). 65 deaths spike late, when the news came days after.</p></div>
+      <div class="claim"><div class="n">1.08x</div><p>the old traffic, a year after a death (median). After an award it is 4.20x; after a Nobel Prize, 8.81x.</p></div>
     </div>
   </section>
 </div>
@@ -285,17 +285,23 @@
 <div class="wrap">
 <div class="route">
 
+  <section class="stop stop--warn">
+    <p class="eyebrow">Correction</p>
+    <h2>What changed on 29 October 2026</h2>
+    <p>Corrected 29 October 2026, after an independent audit. Three 2022 Nobel laureates in economics were missing because the Nobel Prize API gives the wrong year for that prize; they are now in. The curve comparison published on 28 October fitted only days above the baseline, which made a biexponential win almost by default (it reported 90%); every day now counts, and the selector was checked on simulated data. The half-life compared a smoothed series with a single raw day; it now compares like with like. 65 deaths reported days late are counted as delayed spikes rather than no spike. The Oscar baseline fell after the nominations; it now ends a week before them. Earlier figures are kept as sensitivity rows. The full list is in <a href="https://github.com/lyhjeremy/fame-half-life/blob/main/docs/decisions.md">docs/decisions.md</a>, entries 26 to 33.</p>
+  </section>
+
   <section class="stop">
     <p class="eyebrow">The question</p>
     <h2>When someone becomes news, how fast does the world stop looking them up?</h2>
-    <p>A death or a prize sends a burst of readers to a Wikipedia article. This study measures that burst for every person with an English article and at least 30 Wikidata sitelinks who died between January 2016 and October 2025 (1,905 after exclusions), and for the winners of six Nobel Prizes, five Academy Awards, the Ballon d'Or and the Booker Prize in the same years (175). For each event it reads daily views from 60 days before to a year after, from Wikimedia's pageview API, counting user agents only.</p>
+    <p>A death or a prize sends a burst of readers to a Wikipedia article. This study measures that burst for every person with an English article and at least 30 Wikidata sitelinks who died between January 2016 and October 2025 (1,905 after exclusions), and for the winners of six Nobel Prizes, five Academy Awards, the Ballon d'Or and the Booker Prize in the same years (178). For each event it reads daily views from 60 days before to a year after, from Wikimedia's pageview API, counting user agents only.</p>
     <p>The event list was fixed and committed before a single pageview was fetched, so nothing about the results could shape who is in it. 21 deaths and 5 awards drop out because the article was written less than 30 days before the event and has no baseline; among them are George Floyd and Mahsa Amini, whose deaths made them known. 65 more drop because the article was renamed inside the window, which splits its views across two titles.</p>
   </section>
 
   <section class="stop">
     <p class="eyebrow">Finding 1</p>
-    <h2>Half the spike is gone within a day or two</h2>
-    <p>On the median death the page draws 200 times its usual traffic on the peak day, which is the day after the death in 43% of cases. The averaged curve loses half its excess in 1 day and nine tenths in 5 days, and sits at 1.96 times baseline a month later and 1.09 times in the last month of the year. Awards peak at 817 times and lose nine tenths in 4 days. Deaths jump again on day +365, the anniversary; awards climb in the last week of the year as the next year's prize comes round. Measured as specified, the half-life is 1 day for deaths and 1 for awards; it is one day in 95% of deaths with a spike. Most of the attention comes at once: only 29% of a death's first-year excess views (median) arrive after the first week.</p>
+    <h2>Half the spike is gone in about two days</h2>
+    <p>On the median death the page draws 206 times its usual traffic on the peak day, which is the day after the death in 44% of cases. Smoothed over a week, half the extra traffic is gone 2 days after the peak (middle half 2 to 3 days). The averaged curve loses nine tenths of its excess in 5 days and sits at 1.96 times baseline a month later and 1.09 times in the last month of the year, before jumping to 1.58 times on the anniversary. Awards lose nine tenths in 4 days, and climb again in the last week of the year as the next prize comes round. 1,839 of 1,905 deaths have a visible spike (peak at least twice the baseline) on days 0 to 3. Another 65 (3.4%) have a delayed spike: nothing on days 0 to 3, then a day above twice the baseline on days 4 to 30 (Leonard Cohen, Sam Shepard and Steve Ditko among them), most often because the death became news days or weeks after it happened. 1 death has no spike at all.</p>
     <figure class="exhibit">
       <p class="ex-label">Exhibit 1</p>
       <div class="chart-head"><p class="chart-title">Median daily views as a multiple of each event's baseline</p><div class="seg" role="group" aria-label="Range" id="avg-range"></div></div>
@@ -312,34 +318,45 @@
 
   <section class="stop">
     <p class="eyebrow">Finding 2</p>
-    <h2>The fade has two speeds</h2>
-    <p>Three curves were fitted to each event's excess views after the peak: an exponential, a power law, and the biexponential (a sum of two exponentials) that Candia et al. (2019) found in the decay of attention to songs, films and biographies over years. The biexponential has the lowest AIC for 91% of 1,808 deaths and 78% of 139 awards, with a median margin of 25 AIC points over the power law. Its fast part has a median time constant of 5.4 days; the slow part's is 1,418 days, so long that within a year it is close to a flat step above the old baseline. The power law still beats the exponential in 98% of events, which is what a long tail looks like. The two shapes agree with Candia et al. on form; their time scale is years since publication, this one is days since an event.</p>
+    <h2>A fast fade and a slow tail fit most events</h2>
+    <p>Each event's daily views after the peak were fitted three ways, with every day counted: the baseline plus an exponential decay, plus a power law, or plus a biexponential (two exponentials, the form Candia et al. 2019 found over years in attention to songs, films and biographies). The biexponential has the lowest AIC for 76% of 1,839 deaths and 64% of 177 awards; the power law wins 14% of deaths and the exponential 9%. Where the biexponential wins, its fast part has a median time constant of 3.0 days and carries all but 1.8% of the initial excess; the slow part's median time constant is 169 days. On simulated series the selector names the true model 87% of the time for a pure exponential, 95% for a power law and 100% for a biexponential, and it calls 13% of pure exponentials biexponential, so the real share is a mild overstatement. The model comparison first published on 28 October dropped every day at or below the baseline before fitting; on the same simulations that method called 100% of pure exponentials biexponential, which is why it reported 90% biexponential wins.</p>
     <figure class="exhibit">
       <p class="ex-label">Exhibit 2</p>
       <p class="chart-title">Which model fits each event best</p>
       <div class="chart">
         <div data-loading class="skeleton sk-stats" aria-hidden="true"></div>
-        <svg id="wins" viewBox="0 0 900 180" role="img" aria-labelledby="wins-t"><title id="wins-t">Share of events won by each model: the biexponential wins 91% of deaths and 78% of awards.</title></svg>
+        <svg id="wins" viewBox="0 0 900 180" role="img" aria-labelledby="wins-t"><title id="wins-t">Share of events won by each model: the biexponential wins 76% of deaths and 64% of awards.</title></svg>
         <p class="legend"><span class="l-blue">biexponential</span><span class="l-red">power law</span><span class="l-gray">exponential</span></p>
       </div>
-      <figcaption>Lowest AIC on log excess views, from the day after the peak to day +365, on days with views above baseline. The biexponential has four parameters and the others two; AIC charges for the difference.</figcaption>
-      <noscript><img width="1290" height="420" src="../figures/model_wins.png" alt="Bars showing the biexponential model winning most events among deaths and awards."></noscript>
+      <figcaption>Lowest AIC. Each model is the baseline plus a decaying excess, fitted to log(1 + daily views) on every day from the one after the peak to day +365. The biexponential has four parameters and the others two; AIC charges for the difference.</figcaption>
+      <noscript><img width="1290" height="420" src="../figures/model_wins.png" alt="Bars showing the share of events each model wins, for deaths and awards."></noscript>
     </figure>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>True model</th><th class="num">Noise 0.15</th><th class="num">Noise 0.30</th><th class="num">First method, 0.15</th><th class="num">First method, 0.30</th></tr></thead>
+        <tbody>
+<tr><td>Exponential</td><td class="num">87%</td><td class="num">82%</td><td class="num">0%</td><td class="num">0%</td></tr>
+<tr><td>Power law</td><td class="num">95%</td><td class="num">88%</td><td class="num">82%</td><td class="num">73%</td></tr>
+<tr><td>Biexponential</td><td class="num">100%</td><td class="num">99%</td><td class="num">95%</td><td class="num">91%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small">How often the selector names the true model on 150 simulated series per row (<code>scripts/simulate_selection.py</code>). "First method" is the comparison published on 28 October, which fitted only days above the baseline.</p>
   </section>
 
   <section class="stop stop--key">
     <p class="eyebrow">Finding 3</p>
-    <h2>A death leaves a page busier than before; an Oscar leaves it quieter</h2>
-    <p>A year after a death the median page draws 1.08 times its old traffic, and 59% of pages sit above their baseline. Awards spread far wider. Nobel laureates, with a median of 20 views a day beforehand, keep 8.78 times that. Academy Award winners start from 15,120 a day, already raised by awards season, and end the year at 0.38 times it.</p>
+    <h2>A death leaves a page a little busier than before</h2>
+    <p>A year after a death the median page draws 1.08 times its old traffic, and 59% of pages sit above their baseline. Award winners settle at a median 4.20 times, but the prizes differ: Nobel laureates, with a median of 20 views a day beforehand, keep 8.81 times that; Booker winners 2.56; Ballon d'Or winners 0.87. For Academy Award winners the answer depends on which 'before' you use: against the 53 days ending a week before the nominations it is 0.58, against days -150 to -90 before the ceremony 1.03.</p>
     <div class="tbl">
       <table>
         <thead><tr><th>Event</th><th class="num">n</th><th class="num">Baseline views/day</th><th class="num">Peak</th><th class="num">Half-life, days</th><th class="num">After week one</th><th class="num">Lift</th></tr></thead>
         <tbody>
-<tr><td>Death</td><td class="num">1,905</td><td class="num">202</td><td class="num">200x</td><td class="num">1</td><td class="num">29%</td><td class="num">1.08x</td></tr>
-<tr><td>Nobel Prize</td><td class="num">107</td><td class="num">20</td><td class="num">2978x</td><td class="num">1</td><td class="num">46%</td><td class="num">8.78x</td></tr>
-<tr><td>Academy Award</td><td class="num">50</td><td class="num">15,120</td><td class="num">25x</td><td class="num">1</td><td class="num">12%</td><td class="num">0.38x</td></tr>
-<tr><td>Ballon d'Or</td><td class="num">9</td><td class="num">20,300</td><td class="num">4x</td><td class="num">1</td><td class="num">85%</td><td class="num">0.87x</td></tr>
-<tr><td>Booker Prize</td><td class="num">9</td><td class="num">76</td><td class="num">222x</td><td class="num">1</td><td class="num">69%</td><td class="num">2.56x</td></tr>
+<tr><td>Death</td><td class="num">1,905</td><td class="num">202</td><td class="num">206x</td><td class="num">2</td><td class="num">29%</td><td class="num">1.08x</td></tr>
+<tr><td>Nobel Prize</td><td class="num">110</td><td class="num">20</td><td class="num">3012x</td><td class="num">1</td><td class="num">46%</td><td class="num">8.81x</td></tr>
+<tr><td>Academy Award</td><td class="num">50</td><td class="num">9,378</td><td class="num">40x</td><td class="num">2</td><td class="num">23%</td><td class="num">0.58x</td></tr>
+<tr><td>Ballon d'Or</td><td class="num">9</td><td class="num">20,300</td><td class="num">4x</td><td class="num">2</td><td class="num">85%</td><td class="num">0.87x</td></tr>
+<tr><td>Booker Prize</td><td class="num">9</td><td class="num">76</td><td class="num">222x</td><td class="num">3</td><td class="num">69%</td><td class="num">2.56x</td></tr>
         </tbody>
       </table>
     </div>
@@ -354,7 +371,7 @@
       <figcaption>Lift is median views on days +335 to +365 divided by the median of days -60 to -8. The dashed line is no change.</figcaption>
       <noscript><img width="1290" height="570" src="../figures/lift.png" alt="Distribution of lift for deaths and awards."></noscript>
     </figure>
-    <p>A regression of log lift on event type, log baseline, occupation group and year (OLS, HC3 errors, n = 2,080, R² = 0.25) puts awards 163% above deaths at the same prior traffic (p < 0.001). Among deaths, with age added (n = 1,902, R² = 0.33), each extra year of age at death goes with 2.0% less lift (p < 0.001). The same regression for log half-life explains almost nothing (R² = 0.03), because the half-life barely varies.</p>
+    <p>A regression of log lift on event type, log baseline, occupation group and year (OLS, HC3 errors, n = 2,083, R² = 0.28) puts awards 194% above deaths at the same prior traffic (p < 0.001); with the Oscar baseline as the spec defined it the figure is 167% above (p < 0.001). Among deaths, with age added (n = 1,902, R² = 0.33), each extra year of age at death goes with 2.0% less lift (p < 0.001). The same regression for log half-life explains little (R² = 0.09).</p>
   </section>
 
   <section class="stop">
@@ -375,13 +392,26 @@
   <section class="stop stop--warn">
     <p class="eyebrow">Checks</p>
     <h2>What moves the numbers, and what does not</h2>
-    <p>Bot leakage: capping any day above 50 times the median of its six neighbors touches 31 events and changes 1 half-life; median lift with the cap is 1.08 for deaths and 4.16 for awards. Renames: 65 events were dropped because the article moved to a new title inside the window. Smoothing: the median half-life is 2 days with a 3-day window, 1 with 7 and 1 with 14. The spike is narrower than the window, so the specified half-life is one day for most events; the late-share measure and the fitted curves are less sensitive to that choice. Day of week: the median page's busiest weekday draws 1.43 times its quietest, which is why every series is adjusted before measuring.</p>
+    <p>Bot leakage: capping any day above 50 times the median of its six neighbors touches 31 events and leaves every half-life unchanged; median lift with the cap is 1.08 for deaths and 4.20 for awards. Renames: 65 events were dropped because the article moved to a new title inside the window, and 26 articles moved later are read under the title they had at the time. Peak window: searching for the peak over days 0 to 30 instead of 0 to 3 moves it later for 163 deaths and leaves the median half-life at 2 days. Smoothing and definition: the table below gives the half-life every way it was measured. Day of week: the median page's busiest weekday draws 1.42 times its quietest, which is why every series is adjusted before measuring.</p>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Half-life measure</th><th class="num">Deaths, median days</th><th class="num">Deaths, one day</th><th class="num">Awards, median days</th><th class="num">Awards, one day</th></tr></thead>
+        <tbody>
+<tr><td>Half-life, smoothed (7 days) against smoothed peak (main)</td><td class="num">2</td><td class="num">11%</td><td class="num">2</td><td class="num">33%</td></tr>
+<tr><td>Half-life, smoothed (3 days) against smoothed peak</td><td class="num">2</td><td class="num">33%</td><td class="num">1</td><td class="num">62%</td></tr>
+<tr><td>Half-life, smoothed (14 days) against smoothed peak</td><td class="num">6</td><td class="num">0%</td><td class="num">6</td><td class="num">0%</td></tr>
+<tr><td>Half-life, daily views against daily peak</td><td class="num">1</td><td class="num">58%</td><td class="num">1</td><td class="num">77%</td></tr>
+<tr><td>Half-life, as in the spec (smoothed against daily peak)</td><td class="num">1</td><td class="num">95%</td><td class="num">1</td><td class="num">99%</td></tr>
+<tr><td>Half-life, peak searched over days 0 to 30</td><td class="num">2</td><td class="num">21%</td><td class="num">2</td><td class="num">39%</td></tr>
+        </tbody>
+      </table>
+    </div>
   </section>
 
   <section class="stop stop--warn">
     <p class="eyebrow">Limits</p>
     <h2>What this cannot show</h2>
-    <p>English Wikipedia only, and a pageview is someone looking a person up, which is not the same as caring about them. The 30-sitelink floor decides who counts as famous and leans toward people known in many countries; it is today's count, so a few people clear it because of the death itself. Some automated traffic gets past the <code>user</code> filter. A death or prize can coincide with other news about the same person, a film release or a scandal, and nothing here separates the two. For the Academy Awards the baseline falls in awards season, after the nominations, so the "before" traffic is already raised; that is part of why Oscar winners settle below it. The award sample is small (175 events, 9 of them Ballon d'Or and 9 Booker), so differences between prizes are descriptive.</p>
+    <p>English Wikipedia only, and a pageview is someone looking a person up, which is not the same as caring about them. The 30-sitelink floor decides who counts as famous and leans toward people known in many countries; it is today's count, so a few people clear it because of the death itself. Some automated traffic gets past the <code>user</code> filter. A death or prize can coincide with other news about the same person, a film release or a scandal, and nothing here separates the two. Awards season raises an Oscar winner's traffic for months, so any "before" window is a choice: the Oscar lift is 0.58 against the 53 days ending a week before the nominations, 0.38 against the spec's window after them, and 1.03 against days -150 to -90 before the ceremony. The award sample is small (178 events, 9 of them Ballon d'Or and 9 Booker), so differences between prizes are descriptive.</p>
   </section>
 
   <section class="stop stop--end">
@@ -390,8 +420,8 @@
     <dl class="specs">
       <div class="spec"><dt>Events</dt><dd>Wikidata SPARQL for deaths (run per half-year) and Academy Awards; the Nobel Prize API for laureates and announcement dates; each year's English Wikipedia article for Ballon d'Or and Booker dates. Queries in <code>queries/</code>, list in <code>data/events.csv</code>.</dd></div>
       <div class="spec"><dt>Pageviews</dt><dd>Wikimedia REST API, <code>per-article/en.wikipedia/all-access/user/daily</code>, days -60 to +365, titles resolved through Wikidata at fetch time; page moves inside the window found from revision summaries.</dd></div>
-      <div class="spec"><dt>Measures</dt><dd>Baseline is the median of days -60 to -8, peak the maximum of days 0 to +3, half-life the days from the peak until the centered 7-day mean of excess views falls below half the peak excess, lift the median of days +335 to +365 over baseline. Day-of-week factors from the baseline window.</dd></div>
-      <div class="spec"><dt>Models</dt><dd>Exponential, power law and biexponential fitted to log excess views; AIC from the residual sum of squares. The browser runs the same code: <code>assets/fit.js</code> is a port of <code>scripts/fits.py</code>, checked against it on 60 events.</dd></div>
+      <div class="spec"><dt>Measures</dt><dd>Baseline is the median of days -60 to -8 (for the Academy Awards, of the 53 days ending a week before the nominations), peak the maximum of days 0 to +3, half-life the days from the smoothed peak until the centered 7-day mean of excess views falls below half of it, lift the median of days +335 to +365 over baseline. Day-of-week factors from the baseline window.</dd></div>
+      <div class="spec"><dt>Models</dt><dd>Baseline plus an exponential, power-law or biexponential decay, fitted to log(1 + daily views) on every day after the peak; AIC from the residual sum of squares; the selector checked on simulated series. The browser runs the same code: <code>assets/fit.js</code> is a port of <code>scripts/fits.py</code>, checked against it by <code>scripts/check_fit_parity.py</code>.</dd></div>
       <div class="spec"><dt>Regressions</dt><dd>OLS with HC3 errors of log half-life and log lift on event type, log baseline, occupation group and year; for deaths, also age at death. Full table in <code>tables/regressions.csv</code>.</dd></div>
       <div class="spec"><dt>Prior work</dt><dd>Candia, Jara-Figueroa, Rodriguez-Sickert, Barabási and Hidalgo (2019), <a href="https://doi.org/10.1038/s41562-018-0474-5">The universal decay of collective memory and attention</a>, <i>Nature Human Behaviour</i> 3, 82–91.</dd></div>
       <div class="spec"><dt>Built with</dt><dd>Python (pandas, NumPy, statsmodels, matplotlib); plain JavaScript and inline SVG for the charts. Every number on this page is written from the analysis outputs by <code>scripts/export_numbers.py</code>.</dd></div>

@@ -1,9 +1,16 @@
-"""Per-event measures and the three decay models. assets/fame.js implements the same
-steps for the live lookup, line for line, so a curve fitted in the browser matches one
-fitted here. Keep the two in step.
+"""Per-event measures and the three decay models. assets/fit.js implements the same
+steps for the browser, line for line, so a curve fitted there matches one fitted here.
+Keep the two in step; scripts/check_fit_parity.py compares them.
 
 Series convention: an array of daily views for days -60 ... +365 around the event
-(index 0 is day -60, index 60 is day 0). NaN marks days after the last available date.
+(index 0 is day -60, index 60 is day 0). NaN marks days after the last available day.
+
+Post-audit version, 2026-10-29 (docs/decisions.md, entries 26 to 31):
+  - the decay models are fitted to every day after the peak, as log(1 + views) against
+    log(1 + baseline + f(t)), instead of to log excess on days with positive excess only;
+  - the main half-life compares the smoothed series with the smoothed peak;
+  - an event with no spike on days 0 to 3 but one on days 4 to 30 is a "delayed spike";
+  - an optional external baseline window (used for the Academy Awards).
 """
 import math
 import numpy as np
@@ -11,6 +18,7 @@ import numpy as np
 PRE, POST = 60, 365
 BASE = (-60, -8)          # baseline window, inclusive
 PEAK = (0, 3)             # peak window, inclusive
+DELAY = (4, 30)           # where a late-reported spike is looked for
 LIFT = (335, 365)         # lift window, inclusive
 MIN_LIFT_DAYS = 21
 MIN_FIT_DAYS = 30
@@ -20,12 +28,10 @@ def idx(day):
     return day + PRE
 
 
-def dow_factors(views, weekday0):
-    """Multiplicative day-of-week factors from the baseline window, mean 1, clipped to [0.5, 2].
-    weekday0 is the weekday (0 = Monday) of day -60."""
-    w = np.array([(weekday0 + k) % 7 for k in range(len(views))])
-    b = slice(idx(BASE[0]), idx(BASE[1]) + 1)
-    vb, wb = views[b], w[b]
+def dow_factors(vb, wd0):
+    """Multiplicative day-of-week factors from a baseline series vb whose first day has
+    weekday wd0 (0 = Monday): mean 1, clipped to [0.5, 2]."""
+    wb = np.array([(wd0 + k) % 7 for k in range(len(vb))])
     m = np.nanmean(vb)
     f = np.ones(7)
     if m > 0:
@@ -34,7 +40,7 @@ def dow_factors(views, weekday0):
             if len(x):
                 f[d] = np.clip(np.nanmean(x) / m, 0.5, 2.0)
         f = f / f.mean()
-    return f, w
+    return f
 
 
 def smooth(x, win):
@@ -48,121 +54,165 @@ def smooth(x, win):
     return out
 
 
-def measures(views, weekday0, win=7, cap=None):
-    """Baseline, peak, half-life and lift for one event. cap: if set, any day above
-    cap times the median of its six neighbors (three each side) is cut to that bound."""
+def cap_series(v, cap):
+    """Cut any day above cap times the median of its six neighbors to that bound."""
+    raw = v.copy()
+    out = v.copy()
+    n = 0
+    for i in range(len(v)):
+        nb = np.r_[raw[max(0, i - 3):i], raw[i + 1:i + 4]]
+        nb = nb[~np.isnan(nb)]
+        if len(nb) and not np.isnan(raw[i]):
+            lim = cap * np.median(nb)
+            if lim > 0 and raw[i] > lim:
+                out[i] = lim
+                n += 1
+    return out, n
+
+
+def first_below(x, start, level):
+    for t in range(start + 1, len(x)):
+        if not np.isnan(x[t]) and x[t] < level:
+            return t - start
+    return np.nan
+
+
+def measures(views, weekday0, win=7, cap=None, base=None, peak=PEAK):
+    """Baseline, peak, spike class, half-lives and lift for one event.
+    base: optional (views, weekday0) of another window to take the baseline and the
+    day-of-week factors from. peak: the window the peak is searched in."""
     v = np.asarray(views, dtype=float).copy()
     capped = 0
     if cap:
-        raw = v.copy()
-        for i in range(len(v)):
-            nb = np.r_[raw[max(0, i - 3):i], raw[i + 1:i + 4]]
-            nb = nb[~np.isnan(nb)]
-            if len(nb) and not np.isnan(raw[i]):
-                lim = cap * np.median(nb)
-                if lim > 0 and raw[i] > lim:
-                    v[i] = lim
-                    capped += 1
-    f, w = dow_factors(v, weekday0)
+        v, capped = cap_series(v, cap)
+    w = np.array([(weekday0 + k) % 7 for k in range(len(v))])
+    if base is not None:
+        bv = np.asarray(base[0], dtype=float)
+        f = dow_factors(bv, base[1])
+        bw = np.array([(base[1] + k) % 7 for k in range(len(bv))])
+        baseline = float(np.nanmedian(bv / f[bw]))
+    else:
+        b = slice(idx(BASE[0]), idx(BASE[1]) + 1)
+        f = dow_factors(v[b], weekday0)
+        baseline = None
     a = v / f[w]
-    base = float(np.nanmedian(a[idx(BASE[0]):idx(BASE[1]) + 1]))
-    pk = a[idx(PEAK[0]):idx(PEAK[1]) + 1]
-    peak_day = int(np.nanargmax(pk)) + PEAK[0]
-    peak = float(pk[peak_day - PEAK[0]])
-    ex = a - base
-    pex = peak - base
-    out = {"baseline": base, "peak": peak, "peak_day": peak_day, "peak_ratio": peak / base if base > 0 else np.nan,
-           "spike": bool(base > 0 and pex > base), "half_life": np.nan, "half_life_censored": False,
+    if baseline is None:
+        baseline = float(np.nanmedian(a[idx(BASE[0]):idx(BASE[1]) + 1]))
+    pk = a[idx(peak[0]):idx(peak[1]) + 1]
+    peak_day = int(np.nanargmax(pk)) + peak[0]
+    pv = float(pk[peak_day - peak[0]])
+    ex = a - baseline
+    pex = pv - baseline
+    spike = bool(baseline > 0 and pex > baseline)
+    kind = "spike" if spike else "none"
+    if not spike and baseline > 0 and peak == PEAK:
+        late = a[idx(DELAY[0]):idx(DELAY[1]) + 1]
+        if np.nanmax(late) > 2 * baseline:
+            kind = "delayed"
+    out = {"baseline": baseline, "peak": pv, "peak_day": peak_day, "peak_ratio": pv / baseline if baseline > 0 else np.nan,
+           "spike": spike, "spike_kind": kind, "half_life": np.nan, "half_life_raw": np.nan, "half_life_spec": np.nan,
+           "half_life_censored": False, "smooth_peak_day": np.nan, "cum_half_day": np.nan, "late_share": np.nan,
            "lift": np.nan, "capped_days": capped, "dow_amplitude": float(f.max() / f.min())}
     if pex > 0:
         sm = smooth(ex, win)
-        hl = np.nan
-        for t in range(idx(peak_day) + 1, len(sm)):
-            if not np.isnan(sm[t]) and sm[t] < 0.5 * pex:
-                hl = t - idx(peak_day)
-                break
-        out["half_life"] = hl
-        out["half_life_censored"] = bool(np.isnan(hl))
-        # Day by which half of the first year's excess views (after the peak day) had arrived.
+        spk = sm[idx(peak[0]):idx(peak[1]) + 1]
+        if not np.all(np.isnan(spk)):
+            sd = int(np.nanargmax(spk)) + peak[0]
+            out["smooth_peak_day"] = sd
+            out["half_life"] = first_below(sm, idx(sd), 0.5 * float(spk[sd - peak[0]]))
+            out["half_life_censored"] = bool(np.isnan(out["half_life"]))
+        out["half_life_raw"] = first_below(ex, idx(peak_day), 0.5 * pex)
+        out["half_life_spec"] = first_below(sm, idx(peak_day), 0.5 * pex)
         tail = np.nan_to_num(ex[idx(peak_day):idx(POST) + 1].clip(min=0))
         cum = np.cumsum(tail)
-        out["cum_half_day"] = int(np.searchsorted(cum, 0.5 * cum[-1])) if cum[-1] > 0 else np.nan
-        # Share of those excess views that arrived more than a week after the peak day.
-        out["late_share"] = float(tail[8:].sum() / cum[-1]) if cum[-1] > 0 else np.nan
+        if cum[-1] > 0:
+            out["cum_half_day"] = int(np.searchsorted(cum, 0.5 * cum[-1]))
+            out["late_share"] = float(tail[8:].sum() / cum[-1])
     lw = a[idx(LIFT[0]):idx(LIFT[1]) + 1]
     lw = lw[~np.isnan(lw)]
-    if base > 0 and len(lw) >= MIN_LIFT_DAYS:
-        out["lift"] = float(np.median(lw)) / base
+    if baseline > 0 and len(lw) >= MIN_LIFT_DAYS:
+        out["lift"] = float(np.median(lw)) / baseline
     return out, a, ex
 
 
-# ---- decay models, fitted to log excess on the days after the peak ----
+# ---- decay models ----
+# Every day after the peak counts. With a the adjusted views and b the baseline, the fit
+# minimizes the squared difference between log(1 + a_t) and log(1 + b + f(t)), t = 1, 2, ...
+# days after the peak, where f is the decay of the excess:
+#   exp     A e^(-t/tau)
+#   pow     A t^(-alpha)
+#   biexp   A (w e^(-t/tau1) + (1 - w) e^(-t/tau2)),  tau1 < tau2
+# Parameters live on log scales (log A, log tau, log alpha, logit w). A fixed grid gives
+# the start and Nelder-Mead refines it.
 
-def fit_points(ex, peak_day):
+def fit_points(a, peak_day):
     t = np.arange(1, POST - peak_day + 1, dtype=float)
-    y = ex[idx(peak_day) + 1:idx(POST) + 1]
-    ok = ~np.isnan(y) & (y > 0)
-    return t[ok], np.log(y[ok])
+    y = a[idx(peak_day) + 1:idx(POST) + 1]
+    ok = ~np.isnan(y)
+    return t[ok], np.log1p(np.maximum(y[ok], 0))
 
 
-def aic(rss, n, k):
-    return n * math.log(rss / n) + 2 * (k + 1)
+def curve(model, p, t):
+    t = np.asarray(t, dtype=float)
+    if model == "exp":
+        return math.exp(p[0]) * np.exp(-t / math.exp(p[1]))
+    if model == "pow":
+        return math.exp(p[0]) * t ** (-math.exp(p[1]))
+    w = 1 / (1 + math.exp(-p[3]))
+    return math.exp(p[0]) * (w * np.exp(-t / math.exp(p[1])) + (1 - w) * np.exp(-t / math.exp(p[2])))
 
 
-def ols(x, y):
-    xm, ym = x.mean(), y.mean()
-    sxx = ((x - xm) ** 2).sum()
-    b = ((x - xm) * (y - ym)).sum() / sxx if sxx > 0 else 0.0
-    return ym - b * xm, b
+def rss(model, p, t, y, b):
+    if model == "biexp" and not p[1] < p[2]:
+        return math.inf
+    r = y - np.log1p(b + curve(model, p, t))
+    v = float((r * r).sum())
+    return v if math.isfinite(v) else math.inf
 
 
-def fit_exp(t, y):
-    a, b = ols(t, y)
-    rss = float(((y - (a + b * t)) ** 2).sum())
-    return {"A": math.exp(a), "tau": -1 / b if b < 0 else math.inf, "rss": rss}
+def geom(a, b, n):
+    return [a * (b / a) ** (i / (n - 1)) for i in range(n)]
 
 
-def fit_pow(t, y):
-    a, b = ols(np.log(t), y)
-    rss = float(((y - (a + b * np.log(t))) ** 2).sum())
-    return {"A": math.exp(a), "alpha": -b, "rss": rss}
+DA = [-2 + 0.5 * i for i in range(9)]                 # log A offsets around the day-1 excess
+TAU = geom(0.3, 3000, 30)
+ALPHA = geom(0.05, 5, 30)
+TAU1 = geom(0.3, 30, 10)
+TAU2 = geom(3, 3000, 12)
+WS = [1 - x for x in geom(1e-3, 0.5, 8)]
 
 
-def _biexp_rss(t, y, lt1, lt2, lw):
-    t1, t2 = math.exp(lt1), math.exp(lt2)
-    w = 1 / (1 + math.exp(-lw))
-    shape = w * np.exp(-t / t1) + (1 - w) * np.exp(-t / t2)
-    if not np.all(shape > 0):
-        return math.inf, 0.0
-    ls = np.log(shape)
-    la = float((y - ls).mean())
-    return float(((y - la - ls) ** 2).sum()), la
+def grids(a0):
+    """Starting grids in a fixed order; fit.js builds the same lists in the same order."""
+    la = [math.log(a0) + d for d in DA]
+    g = {"exp": [[x, math.log(tau)] for x in la for tau in TAU],
+         "pow": [[x, math.log(al)] for x in la for al in ALPHA],
+         "biexp": [[x, math.log(t1), math.log(t2), math.log(w / (1 - w))]
+                   for x in la for t1 in TAU1 for t2 in TAU2 if t2 > 1.5 * t1 for w in WS]}
+    return g
 
 
-T1 = np.geomspace(0.3, 60, 16)
-T2 = np.geomspace(3, 3000, 18)
-W = 1 - np.geomspace(1e-4, 0.5, 14)
+def grid_rss(model, G, t, y, b):
+    """RSS for every grid row at once (vectorized form of rss())."""
+    G = np.asarray(G)
+    A = np.exp(G[:, :1])
+    T = t[None, :]
+    if model == "exp":
+        f = A * np.exp(-T / np.exp(G[:, 1:2]))
+    elif model == "pow":
+        f = A * T ** (-np.exp(G[:, 1:2]))
+    else:
+        w = 1 / (1 + np.exp(-G[:, 3:4]))
+        f = A * (w * np.exp(-T / np.exp(G[:, 1:2])) + (1 - w) * np.exp(-T / np.exp(G[:, 2:3])))
+    r = y[None, :] - np.log1p(b + f)
+    return (r * r).sum(axis=1)
 
 
-def fit_biexp(t, y):
-    """Sum of two exponentials, A (w e^(-t/tau1) + (1 - w) e^(-t/tau2)), tau1 < tau2.
-    A coarse grid gives the start; Nelder-Mead on (log tau1, log tau2, logit w) refines it."""
-    best = (math.inf, None)
-    for t1 in T1:
-        for t2 in T2:
-            if t2 <= t1 * 1.5:
-                continue
-            for w in W:
-                r, _ = _biexp_rss(t, y, math.log(t1), math.log(t2), math.log(w / (1 - w)))
-                if r < best[0]:
-                    best = (r, [math.log(t1), math.log(t2), math.log(w / (1 - w))])
-    p = nelder_mead(lambda q: _biexp_rss(t, y, *q)[0] if q[0] < q[1] else math.inf, best[1])
-    rss, la = _biexp_rss(t, y, *p)
-    t1, t2, w = math.exp(p[0]), math.exp(p[1]), 1 / (1 + math.exp(-p[2]))
-    return {"A": math.exp(la), "tau1": t1, "tau2": t2, "w": w, "rss": rss}
+def aic(r, n, k):
+    return n * math.log(r / n) + 2 * (k + 1)
 
 
-def nelder_mead(f, x0, step=0.3, iters=400, tol=1e-9):
+def nelder_mead(f, x0, step=0.3, iters=600, tol=1e-10):
     """Plain Nelder-Mead, written out so the browser version can match it exactly."""
     n = len(x0)
     pts = [list(x0)] + [[x0[j] + (step if j == i else 0) for j in range(n)] for i in range(n)]
@@ -194,23 +244,67 @@ def nelder_mead(f, x0, step=0.3, iters=400, tol=1e-9):
     return pts[i]
 
 
-def fit_all(ex, peak_day):
-    t, y = fit_points(ex, peak_day)
+K = {"exp": 2, "pow": 2, "biexp": 4}
+
+
+def fit_all(a, baseline, peak_day):
+    t, y = fit_points(a, peak_day)
     n = len(t)
     if n < MIN_FIT_DAYS:
         return None
-    e, p, b = fit_exp(t, y), fit_pow(t, y), fit_biexp(t, y)
-    out = {"n": n, "exp": e, "pow": p, "biexp": b,
-           "aic": {"exp": aic(e["rss"], n, 2), "pow": aic(p["rss"], n, 2), "biexp": aic(b["rss"], n, 4)}}
+    a0 = max(float(a[idx(peak_day) + 1]) - baseline, 1.0) if not np.isnan(a[idx(peak_day) + 1]) else 1.0
+    G = grids(a0)
+    out = {"n": n, "params": {}, "rss": {}, "aic": {}}
+    for m in ("exp", "pow", "biexp"):
+        r = grid_rss(m, G[m], t, y, baseline)
+        start = G[m][int(np.argmin(r))]
+        p = nelder_mead(lambda q: rss(m, q, t, y, baseline), start)
+        out["params"][m] = p
+        out["rss"][m] = rss(m, p, t, y, baseline)
+        out["aic"][m] = aic(out["rss"][m], n, K[m])
     out["best"] = min(out["aic"], key=out["aic"].get)
     return out
 
 
-def model_curve(f, model, t):
-    t = np.asarray(t, dtype=float)
-    m = f[model]
-    if model == "exp":
-        return m["A"] * np.exp(-t / m["tau"])
-    if model == "pow":
-        return m["A"] * t ** (-m["alpha"])
-    return m["A"] * (m["w"] * np.exp(-t / m["tau1"]) + (1 - m["w"]) * np.exp(-t / m["tau2"]))
+def describe(fit):
+    """Readable parameters: A, tau, alpha, tau1, tau2, w."""
+    p = fit["params"]
+    return {"exp_A": math.exp(p["exp"][0]), "exp_tau": math.exp(p["exp"][1]),
+            "pow_A": math.exp(p["pow"][0]), "pow_alpha": math.exp(p["pow"][1]),
+            "bi_A": math.exp(p["biexp"][0]), "bi_tau1": math.exp(p["biexp"][1]), "bi_tau2": math.exp(p["biexp"][2]),
+            "bi_w": 1 / (1 + math.exp(-p["biexp"][3]))}
+
+
+# ---- legacy: the spec's comparison, kept only as a reported sensitivity row ----
+# Fitted log excess on days with excess above zero. Dropping the days at or below the
+# baseline biases the choice toward the biexponential: in simulation it picks the
+# biexponential for most pure exponentials (tables/model_recovery.csv). Not used for results.
+
+def fit_spec_logexcess(ex, peak_day):
+    t = np.arange(1, POST - peak_day + 1, dtype=float)
+    y = ex[idx(peak_day) + 1:idx(POST) + 1]
+    ok = ~np.isnan(y) & (y > 0)
+    t, y = t[ok], np.log(y[ok])
+    n = len(t)
+    if n < MIN_FIT_DAYS:
+        return None
+
+    def lin(x):
+        b = np.polyfit(x, y, 1)
+        return float(((y - np.polyval(b, x)) ** 2).sum())
+    r = {"exp": lin(t), "pow": lin(np.log(t))}
+
+    def bi(q):
+        if not q[0] < q[1]:
+            return math.inf
+        w = 1 / (1 + math.exp(-q[2]))
+        sh = w * np.exp(-t / math.exp(q[0])) + (1 - w) * np.exp(-t / math.exp(q[1]))
+        if not np.all(sh > 0):
+            return math.inf
+        ls = np.log(sh)
+        return float(((y - (y - ls).mean() - ls) ** 2).sum())
+    best = min(([math.log(a), math.log(b), math.log(w / (1 - w))] for a in TAU1 for b in TAU2 if b > 1.5 * a
+                for w in WS), key=bi)
+    r["biexp"] = bi(nelder_mead(bi, best))
+    a = {m: aic(r[m], n, K[m]) for m in r}
+    return min(a, key=a.get)

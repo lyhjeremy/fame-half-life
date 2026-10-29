@@ -1,6 +1,6 @@
-group,n,share_spike,half_life_median,cum_half_median,late_share_median,lift_median,peak_ratio_median,baseline_median
-Academy Award,50,1,1,1,0.1213,0.3784,25.38,1.512e+04
-Ballon d'Or,9,1,1,198,0.8549,0.8682,4.296,2.03e+04
-Booker Prize,9,1,1,53,0.6948,2.563,222,76.39
-Death,1905,0.9654,1,2,0.2888,1.077,200.1,202
-Nobel Prize,107,0.9907,1,5,0.4611,8.782,2978,20.13
+group,n,spikes,half_life_median,late_share_median,lift_median,baseline_median,peak_ratio_median,share_spike,spec_lift_median,spec_baseline_median
+Academy Award,50,50,2,0.2269,0.5846,9378,40.01,1,0.3784,1.512e+04
+Ballon d'Or,9,9,2,0.8549,0.8682,2.03e+04,4.296,1,0.8682,2.03e+04
+Booker Prize,9,9,3,0.6948,2.563,76.39,222,1,2.563,76.39
+Death,1905,1839,2,0.2888,1.077,202,205.5,0.9654,1.077,202
+Nobel Prize,110,109,1,0.4579,8.812,19.75,3012,0.9909,8.812,19.75

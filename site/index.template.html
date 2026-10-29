@@ -6,6 +6,7 @@
 <title>Fame Half-Life: how fast the world stops looking someone up</title>
 <meta name="description" content="Daily English Wikipedia pageviews around {{nDeaths}} deaths and {{nAwards}} major awards, 2016 to 2025. Half the extra attention is gone {{deathHalfPhrase}} after the peak; a year on, a page draws a median {{deathLift}} times its old traffic after a death and {{awardLift}} times after an award.">
 <meta name="theme-color" content="#EEEDE6">
+<link rel="icon" href="data:,">
 <meta property="og:title" content="Fame Half-Life">
 <meta property="og:description" content="How fast attention fades after a death or a major award, measured in daily Wikipedia pageviews, with a live lookup for any article.">
 <meta property="og:type" content="website">
@@ -95,6 +96,7 @@
   <p class="label">The fade</p>
   <h2 id="s-fade">{{fadeTitle}}</h2>
   <p>{{fadeText}}</p>
+  <p>{{spikeText}}</p>
   <div class="chart-head"><div class="seg" role="group" aria-label="Range" id="avg-range"></div></div>
   <figure class="chart">
     <div data-loading class="skeleton sk-chart" aria-hidden="true"></div>
@@ -113,8 +115,17 @@
     <div data-loading class="skeleton sk-stats" aria-hidden="true"></div>
     <svg id="wins" viewBox="0 0 900 180" role="img" aria-labelledby="wins-t"><title id="wins-t">{{winsAlt}}</title></svg>
     <p class="legend"><span class="l-blue">biexponential</span><span class="l-red">power law</span><span class="l-gray">exponential</span></p>
-    <figcaption>Share of events where each model has the lowest AIC, fitted to log excess views from the day after the peak to day +365. Events with a visible spike and at least 30 days above baseline.</figcaption>
+    <figcaption>Share of events where each model has the lowest AIC. Each model is the baseline plus a decaying excess, fitted to log(1 + daily views) on every day from the one after the peak to day +365. Events with a visible spike on days 0 to 3.</figcaption>
   </figure>
+  <div class="table-scroll">
+    <table>
+      <caption class="small tcap">How often the selector names the true model on {{simN}} simulated series per row (scripts/simulate_selection.py). The last two columns are the comparison first published on 28 October, which fitted only days above the baseline.</caption>
+      <thead><tr><th>True model</th><th class="num">Noise 0.15</th><th class="num">Noise 0.30</th><th class="num">First method, 0.15</th><th class="num">First method, 0.30</th></tr></thead>
+      <tbody>
+{{recoveryRows}}
+      </tbody>
+    </table>
+  </div>
 </section>
 
 <section class="sec" aria-labelledby="s-settle">
@@ -141,6 +152,12 @@
   </figure>
 </section>
 
+<section class="sec" aria-labelledby="s-fix">
+  <p class="label">Corrections</p>
+  <h2 id="s-fix">What changed on 29 October 2026</h2>
+  <p class="callout">{{correction}} Every change is listed in <a href="https://github.com/lyhjeremy/fame-half-life/blob/main/docs/decisions.md">docs/decisions.md</a>.</p>
+</section>
+
 <section class="sec" aria-labelledby="s-limits">
   <p class="label">Limits</p>
   <h2 id="s-limits">What this cannot show</h2>
@@ -149,7 +166,7 @@
     <li>The fame floor of 30 Wikidata sitelinks decides who counts as famous and leans toward people known in many countries. It is today's count, so some people clear it because of the death itself.</li>
     <li>Some automated traffic passes the <code>user</code> filter. Capping any day above 50 times its neighbors {{botPhrase}}.</li>
     <li>A death or an award can coincide with other news about the same person, such as a film release or a scandal, and nothing in the data separates the two.</li>
-    <li>For the Academy Awards the baseline window falls in awards season, after the nominations, so the "before" traffic is already raised. That is part of why awards settle below their baseline.</li>
+    <li>Awards season raises an Oscar winner's traffic for months, so any "before" window is a choice. The baseline here ends a week before the nominations (median {{oscarBasePre}} views a day); the spec's window, after the nominations, gives {{oscarBaseSpec}}, and days -150 to -90 before the ceremony give {{oscarBaseEarly}}. The Oscar lift is {{oscarLiftPre}}, {{oscarLiftSpec}} and {{oscarLiftEarly}} on the three.</li>
     <li>{{halfLifeLimit}}</li>
   </ul>
 </section>

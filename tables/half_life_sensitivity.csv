@@ -1,0 +1,19 @@
+sample,measure,median,share_one_day
+all,"half-life, smoothed (7 days) against smoothed peak (main)",2,0.1329
+all,"half-life, smoothed (3 days) against smoothed peak",2,0.3552
+all,"half-life, smoothed (14 days) against smoothed peak",6,0
+all,"half-life, daily views against daily peak",1,0.5972
+all,"half-life, as in the spec (smoothed against daily peak)",1,0.9499
+all,"half-life, peak searched over days 0 to 30",2,0.2291
+death,"half-life, smoothed (7 days) against smoothed peak (main)",2,0.1136
+death,"half-life, smoothed (3 days) against smoothed peak",2,0.3301
+death,"half-life, smoothed (14 days) against smoothed peak",6,0
+death,"half-life, daily views against daily peak",1,0.5802
+death,"half-life, as in the spec (smoothed against daily peak)",1,0.9462
+death,"half-life, peak searched over days 0 to 30",2,0.2138
+award,"half-life, smoothed (7 days) against smoothed peak (main)",2,0.3333
+award,"half-life, smoothed (3 days) against smoothed peak",1,0.6158
+award,"half-life, smoothed (14 days) against smoothed peak",6,0
+award,"half-life, daily views against daily peak",1,0.774
+award,"half-life, as in the spec (smoothed against daily peak)",1,0.9887
+award,"half-life, peak searched over days 0 to 30",2,0.3933

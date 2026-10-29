@@ -9,8 +9,14 @@ For each event:
   3. fetch daily views, all-access, agent=user, for days -60 to +365.
 
 Every response is cached under $FAME_CACHE, so a rerun resumes where it stopped.
-Writes data/series.csv.gz (one row per event, columns d-60 ... d365) and
-data/fetch_log.csv (one row per kept event, with a drop reason where there is one).
+Academy Award events also get their pre-season window: the 53 days ending 8 days before
+that year's nominations were announced (data/academy_nominations.csv), read under the same
+title (post-audit correction, 2026-10-29).
+
+Writes data/fetch_log.csv (committed; one row per kept event, with a drop reason where
+there is one), and data/series.csv.gz (one row per event, columns d-60 ... d365) and
+data/oscar_base.csv.gz (pre-season windows), which are rebuilt from the cache and not
+committed.
 """
 import concurrent.futures as cf, datetime as dt, pathlib, re, sys, urllib.parse
 import numpy as np
@@ -66,6 +72,28 @@ def views(title, start, end):
     return {it["timestamp"][:8]: it["views"] for it in d.get("items", [])}
 
 
+NOMS = None
+
+
+def nominations():
+    global NOMS
+    if NOMS is None:
+        n = pd.read_csv(ROOT / "data/academy_nominations.csv")
+        NOMS = {d[:4]: dt.date.fromisoformat(d) for d in n.nominations_announced}
+    return NOMS
+
+
+def base_window(title, event_date):
+    """Views over days -60 to -8 relative to the nominations announcement."""
+    nom = nominations()[event_date[:4]]
+    a, b = nom - dt.timedelta(days=60), nom - dt.timedelta(days=8)
+    v = views(title, a, b)
+    if v is None:
+        return None
+    return nom.isoformat(), a.isoformat(), [v.get((a + dt.timedelta(days=k)).strftime("%Y%m%d"), 0)
+                                            for k in range((b - a).days + 1)]
+
+
 def one(r):
     day0 = dt.date.fromisoformat(r.event_date)
     start, end = day0 - dt.timedelta(days=PRE), min(day0 + dt.timedelta(days=POST), LAST)
@@ -106,6 +134,17 @@ def one(r):
         d = day0 + dt.timedelta(days=k - PRE)
         if d <= end:
             row[k] = v.get(d.strftime("%Y%m%d"), 0)   # the API omits days with no views
+    if r.award.startswith("Academy Award"):
+        bw = base_window(log["title_used"], r.event_date)
+        if bw:
+            log["base"] = bw
+        # Sensitivity only: days -150 to -90 before the ceremony, the auditor's alternative.
+        e0 = dt.date.fromisoformat(r.event_date)
+        ea, eb = e0 - dt.timedelta(days=150), e0 - dt.timedelta(days=90)
+        ev_ = views(log["title_used"], ea, eb)
+        if ev_ is not None:
+            log["early"] = (ea.isoformat(), [ev_.get((ea + dt.timedelta(days=k)).strftime("%Y%m%d"), 0)
+                                             for k in range((eb - ea).days + 1)])
     return log, row
 
 
@@ -122,11 +161,18 @@ def main():
                 rows[log["event_id"]] = row
             if i % 50 == 0:
                 print(f"{i}/{len(ev)}", flush=True)
+    base = {l["event_id"]: l.pop("base") for l in logs if "base" in l}
+    early = {l["event_id"]: l.pop("early") for l in logs if "early" in l}
     lg = pd.DataFrame(logs)
     lg.to_csv(ROOT / "data/fetch_log.csv", index=False)
     s = pd.DataFrame.from_dict(rows, orient="index", columns=[f"d{k - PRE}" for k in range(PRE + POST + 1)])
     s.index.name = "event_id"
     s.to_csv(ROOT / "data/series.csv.gz", float_format="%.0f", compression={"method": "gzip", "mtime": 0})
+    b = pd.DataFrame([{"event_id": k, "nominations": n, "start": st, **{f"b{j}": x for j, x in enumerate(v)}}
+                      for k, (n, st, v) in base.items()])
+    b.to_csv(ROOT / "data/oscar_base.csv.gz", index=False, compression={"method": "gzip", "mtime": 0})
+    e = pd.DataFrame([{"event_id": k, "start": st, **{f"b{j}": x for j, x in enumerate(v)}} for k, (st, v) in early.items()])
+    e.to_csv(ROOT / "data/oscar_early.csv.gz", index=False, compression={"method": "gzip", "mtime": 0})
     print(lg.drop_reason.replace("", "kept").value_counts())
 
 

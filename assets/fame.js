@@ -49,10 +49,10 @@
   }
 
   /* ---------- One event: views, baseline, fitted decay, half-life ---------- */
-  function analyse(views, wd0) {
-    var r = F.measures(views, wd0, 7);
-    var fit = r.m.spike ? F.fitAll(r.excess, r.m.peakDay) : null;
-    return { views: views, m: r.m, fit: fit };
+  function analyze(views, wd0, base) {
+    var r = F.measures(views, wd0, 7, base || null);
+    var fit = r.m.spike ? F.fitAll(r.adjusted, r.m.baseline, r.m.peakDay) : null;
+    return { views: views, m: r.m, fit: fit, preseason: !!base };
   }
 
   function drawEvent(svg, readout, ev, day0, range) {
@@ -91,8 +91,8 @@
       }
       el("polyline", { points: fp.join(" "), "class": "s-red" }, svg);
     }
-    if (m.halfLife === m.halfLife && m.peakDay + m.halfLife <= d1) {
-      var hx = x(m.peakDay + m.halfLife);
+    if (m.halfLife === m.halfLife && m.smoothPeakDay + m.halfLife <= d1) {
+      var hx = x(m.smoothPeakDay + m.halfLife);
       el("line", { x1: hx, x2: hx, y1: T, y2: H - B, "class": "s-blue" }, svg);
       el("text", { x: hx + 6, y: T + 12, "font-size": 12, "class": "lab" }, svg, "half-life " + m.halfLife + (m.halfLife === 1 ? " day" : " days"));
     }
@@ -119,7 +119,7 @@
 
   function statsHtml(ev) {
     var m = ev.m, f = ev.fit, hl;
-    if (!m.spike) hl = "no spike";
+    if (!m.spike) hl = m.spikeKind === "delayed" ? "delayed spike" : "no spike";
     else if (m.halfLifeCensored) hl = "over a year";
     else hl = m.halfLife + (m.halfLife === 1 ? " day" : " days");
     var best = f ? MODEL[f.best] : (m.spike ? "too few days to fit" : "not fitted");
@@ -130,11 +130,13 @@
   }
   function noteFor(ev) {
     var m = ev.m, f = ev.fit, out = [];
-    if (!m.spike) out.push("The peak was less than twice the baseline, so this counts as no visible spike and no curve is fitted.");
+    if (m.spikeKind === "delayed") out.push("Nothing on days 0 to 3 reached twice the baseline, but a later day did: a delayed spike, usually news that came days after the event. No curve is fitted.");
+    else if (!m.spike) out.push("The peak was less than twice the baseline, so this counts as no visible spike and no curve is fitted.");
+    if (ev.preseason) out.push("Academy Award: the baseline is the 53 days ending a week before that year's nominations.");
     if (f) {
       var o = ["exp", "pow", "biexp"].filter(function (k) { return k !== f.best; });
       var gap = Math.min(f.aic[o[0]], f.aic[o[1]]) - f.aic[f.best];
-      out.push("The " + MODEL[f.best] + " curve fits best, by " + gap.toFixed(1) + " AIC points over the next model (" + f.n + " days above baseline).");
+      out.push("The " + MODEL[f.best] + " curve fits best, by " + gap.toFixed(1) + " AIC points over the next model (" + f.n + " days fitted).");
     }
     if (m.lift !== m.lift && m.baseline > 0) out.push("The lift needs at least 21 days between day +335 and +365, which have not happened yet.");
     return out.join(" ");
@@ -146,12 +148,12 @@
     var sm = document.createElement("small"); sm.textContent = sub; $(prefix + "-who").appendChild(sm);
     $(prefix + "-stats").innerHTML = statsHtml(ev);
     $(prefix + "-note").textContent = noteFor(ev);
-    var range = "full";
-    var svg = $(prefix + "-svg"), ro = $(prefix + "-read");
-    segButtons($(prefix + "-range"), [["full", "Days -60 to +365"], ["zoom", "Days -14 to +60"]], range, function (r) { range = r; drawEvent(svg, ro, ev, day0, r); });
-    drawEvent(svg, ro, ev, day0, range);
-    window.addEventListener("resize", function () { if ($(prefix + "-svg") === svg) drawEvent(svg, ro, ev, day0, range); });
+    var cur = shown[prefix] = { svg: $(prefix + "-svg"), ro: $(prefix + "-read"), ev: ev, day0: day0, range: "full" };
+    segButtons($(prefix + "-range"), [["full", "Days -60 to +365"], ["zoom", "Days -14 to +60"]], cur.range, function (r) { cur.range = r; drawEvent(cur.svg, cur.ro, ev, day0, r); });
+    drawEvent(cur.svg, cur.ro, ev, day0, cur.range);
   }
+  // The events on screen, redrawn by the one resize listener in initCharts.
+  var shown = {};
 
   /* ---------- Dataset search ---------- */
   var TYPE = { d: "death", a: "award" };
@@ -175,7 +177,7 @@
       loadShard(e[6]).then(function (sh) {
         var s = sh[id];
         var views = s.v.map(function (v) { return v == null ? NaN : v; });
-        var ev = analyse(views, s.wd0);
+        var ev = analyze(views, s.wd0, s.b ? { v: s.b.v, wd0: s.b.wd0 } : null);
         $("ds-sk").classList.add("hidden"); $("ds-out").classList.remove("hidden");
         renderEvent("ds", ev, e[4], e[1], eventLabel(e) + ", " + e[5]);
       }).catch(function () {
@@ -279,7 +281,7 @@
           var views = [];
           for (var k = -60; k <= 365; k++) { var dd = addDays(day0, k); views.push(dd > last ? NaN : (byDay[ymd(dd)] || 0)); }
           var wd0 = new Date(addDays(day0, -60) + "T00:00:00Z").getUTCDay(); wd0 = (wd0 + 6) % 7;
-          var ev = analyse(views, wd0);
+          var ev = analyze(views, wd0);
           $("lv-sk").classList.add("hidden"); $("lv-out").classList.remove("hidden");
           renderEvent("lv", ev, day0, resolved, (auto ? "Busiest day since July 2015: " : "Event date: ") + fmtDate(day0));
         }).catch(function (err) {
@@ -428,7 +430,13 @@
     if ($("groups-metric")) segButtons($("groups-metric"), [["late", "Extra views after week one"], ["lift", "Lift after a year"]], gm, function (m) { gm = m; drawGroups(m); });
     drawGroups(gm);
     var t;
-    window.addEventListener("resize", function () { clearTimeout(t); t = setTimeout(function () { drawAvg(avgRange); drawWins(); drawLift(); drawGroups(gm); }, 150); });
+    window.addEventListener("resize", function () {
+      clearTimeout(t);
+      t = setTimeout(function () {
+        drawAvg(avgRange); drawWins(); drawLift(); drawGroups(gm);
+        Object.keys(shown).forEach(function (k) { var c = shown[k]; drawEvent(c.svg, c.ro, c.ev, c.day0, c.range); });
+      }, 150);
+    });
   }
 
   initLive();

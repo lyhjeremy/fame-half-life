@@ -57,3 +57,4 @@ h3{font-family:var(--font-head);font-size:1.25rem}
 
 /* Long API paths in prose wrap instead of widening the page. */
 p code,li code{overflow-wrap:anywhere}
+.tcap{caption-side:bottom;text-align:left;padding-top:8px}

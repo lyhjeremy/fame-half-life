@@ -1,6 +1,6 @@
 # Fame Half-Life
 
-How fast does the world stop looking someone up? This project measures the spike in daily English Wikipedia pageviews around 1,905 deaths and 175 major awards from 2016 to October 2025, tests which curve the fade follows, and checks where attention settles a year later. The page also has a live box that fetches any article's views from Wikimedia and fits the same curves in your browser.
+How fast does the world stop looking someone up? This project measures the spike in daily English Wikipedia pageviews around 1,905 deaths and 178 major awards from 2016 to October 2025, tests which curve the fade follows, and checks where attention settles a year later. The page also has a live box that fetches any article's views from Wikimedia and fits the same curves in your browser.
 
 [Interactive site](https://lyhjeremy.github.io/fame-half-life/) · [Write-up](https://lyhjeremy.github.io/fame-half-life/overview/) · [Long-form notes](writeup.md) · [Privacy](https://lyhjeremy.github.io/fame-half-life/privacy/)
 
@@ -8,12 +8,13 @@ Design and copy follow [these standards](https://github.com/lyhjeremy/lyhjeremy/
 
 ## Results
 
-- Peak: on the median death a page draws 200 times its baseline at the peak (middle half 107 to 388 times); the peak is the day after the death in 43% of cases.
-- Half-life, as specified: 1 day for deaths and 1 for awards; one day for 95% of deaths with a spike. With 3-day smoothing the median is 2 days.
-- After week one: 29% of a death's first-year excess views (median) arrive more than a week after the peak; for awards 44%.
-- Curve shape: the biexponential has the lowest AIC for 90% of 1,947 fitted events (91% of deaths, 78% of awards); median fast time constant 5.4 days.
-- Lift a year later: 1.08 times baseline for deaths (59% above 1), 8.78 for Nobel laureates, 0.38 for Academy Award winners.
+- Peak: on the median death a page draws 206 times its baseline at the peak (middle half 115 to 395 times).
+- Half-life: half the extra traffic is gone 2 days after the peak for deaths (median; 7-day smoothing against the smoothed peak) and 2 days for awards.
+- Spikes: 1,839 deaths spike on days 0 to 3, 65 spike later because the news came late, 1 not at all.
+- Curve shape: with every day counted, the biexponential has the lowest AIC for 76% of deaths and 64% of awards. In simulation the selector recovers the true model 87% (exponential), 95% (power law) and 100% (biexponential) of the time.
+- Lift a year later: 1.08 times baseline for deaths (59% above 1), 4.20 for awards (8.81 for Nobel laureates; 0.58 for Academy Award winners against a pre-nomination baseline).
 - Among deaths, each extra year of age at death goes with 2.0% less lift (p < 0.001).
+- Corrected on 29 October 2026 after an audit; see the corrections note in [writeup.md](writeup.md) and entries 26 to 33 of [docs/decisions.md](docs/decisions.md).
 
 ![Median daily views as a multiple of baseline, days -60 to +365, for deaths and awards on a log scale](figures/average_curve.png)
 
@@ -22,7 +23,7 @@ Design and copy follow [these standards](https://github.com/lyhjeremy/lyhjeremy/
 | Type | Rule | Candidates | Analyzed |
 |---|---|---|---|
 | Deaths | humans with an English article, 30+ Wikidata sitelinks, day-precision death date, 1 Jan 2016 to 31 Oct 2025 | 1,995 | 1,905 |
-| Awards | Nobel Prizes (all six), Academy Awards (four acting categories and Best Director), Ballon d'Or, Booker Prize | 188 | 175 |
+| Awards | Nobel Prizes (all six), Academy Awards (four acting categories and Best Director), Ballon d'Or, Booker Prize | 191 | 178 |
 
 The list was frozen in `data/events.csv` and committed before any pageview was fetched. Exclusions: article created less than 30 days before the event (21 deaths, 5 awards), article renamed inside the window (65), baseline under one view a day (12). Every data decision is in [`docs/decisions.md`](docs/decisions.md).
 
@@ -30,21 +31,25 @@ The list was frozen in `data/events.csv` and committed before any pageview was f
 
 | Measure | Definition |
 |---|---|
-| Baseline | median daily views, days -60 to -8 |
+| Baseline | median daily views, days -60 to -8; for the Academy Awards, the 53 days ending 8 days before that year's nominations (`data/academy_nominations.csv`) |
 | Peak | maximum daily views, days 0 to +3 |
-| Half-life | days from the peak until the centered 7-day mean of excess views falls below half the peak excess |
+| Half-life | days from the smoothed peak until the centered 7-day mean of excess views falls below half of it |
+| Spike | peak at least twice the baseline on days 0 to 3; "delayed" if that only happens on days 4 to 30 |
 | After week one | share of the first year's excess views that arrive more than 7 days after the peak |
 | Lift | median views on days +335 to +365 divided by baseline |
 
-Views are adjusted for day of week using factors from the baseline window. Three decay models (exponential, power law, and the biexponential form of Candia et al. 2019) are fitted to log excess views after the peak and compared by AIC.
+Views are adjusted for day of week using factors from the baseline window. Three decay models (exponential, power law, and the biexponential form of Candia et al. 2019) are added to the baseline, fitted to log(1 + daily views) on every day after the peak, and compared by AIC. `scripts/simulate_selection.py` checks on simulated series that the comparison recovers the true model (`tables/model_recovery.csv`). The spec's original measures are kept as sensitivity rows (`tables/half_life_sensitivity.csv`, `tables/oscar_baseline.csv`, the `spec_` columns of `tables/model_wins.csv`).
 
 ## How to run
 
 ```bash
 pip install -r requirements.txt
 export FAME_CACHE=~/data-cache/fame-half-life   # raw responses, outside the repo
-python scripts/fetch_events.py      # Wikidata, Nobel API, Wikipedia -> data/events.csv (frozen)
-python scripts/fetch_pageviews.py   # Wikimedia pageviews and rename check -> data/series.csv.gz, data/fetch_log.csv
+python scripts/fetch_events.py      # Wikidata, Nobel API, Wikipedia -> data/events.csv (frozen 2026-10-28; do not rerun)
+python scripts/amend_events.py      # post-audit amendment: the three 2022 economics laureates
+python scripts/academy_nominations.py   # data/academy_nominations.csv
+python scripts/fetch_pageviews.py   # pageviews and rename check -> data/fetch_log.csv; series files rebuilt from the cache
+python scripts/simulate_selection.py    # tables/model_recovery.csv
 python scripts/analyze.py           # results/ and tables/
 python scripts/make_figures.py      # figures/
 python scripts/export_numbers.py    # site/numbers.json
@@ -53,7 +58,7 @@ python scripts/build_site.py        # index.html, README.md, writeup.md, write-u
 python scripts/check_fit_parity.py  # browser fits against Python fits (needs node)
 ```
 
-The processed series are committed, so `analyze.py` onward runs without network access. The fetchers are slow on purpose: about two requests a second, with every response cached.
+The daily series are not committed. `fetch_pageviews.py` rebuilds `data/series.csv.gz` and the Oscar baseline windows from the response cache in `$FAME_CACHE`, offline once the cache exists; from an empty cache it takes 2 to 3 hours, at about two requests a second. The same series are published per event in `assets/series/`.
 
 ## Repo layout
 
@@ -61,7 +66,7 @@ The processed series are committed, so `analyze.py` onward runs without network 
 |---|---|
 | `queries/` | SPARQL text for deaths, Academy Awards, Booker winners and occupation groups |
 | `scripts/` | fetchers, `fits.py` (measures and models), analysis, figures, site builders |
-| `data/` | the frozen event list, fetch log and daily series |
+| `data/` | the frozen event list (plus three amended rows), fetch log, occupation groups and Academy nominations dates |
 | `results/`, `tables/` | every number the pages quote |
 | `index.html`, `assets/` | the interactive page; `assets/fit.js` is a line-for-line port of `scripts/fits.py` |
 | `overview/` | the write-up, generated from `site/overview.fragment.html` by the shared overview builder |

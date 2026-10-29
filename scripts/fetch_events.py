@@ -47,6 +47,13 @@ NOBEL = {"phy": "Nobel Prize in Physics", "che": "Nobel Prize in Chemistry", "me
 OSCAR = {"Q103916": "Academy Award for Best Actor", "Q103618": "Academy Award for Best Actress",
          "Q106291": "Academy Award for Best Supporting Actor", "Q106301": "Academy Award for Best Supporting Actress",
          "Q103360": "Academy Award for Best Director"}
+# The Nobel Prize API's dateAwarded is checked against the prize year. The 2018 Literature
+# prize was announced on 10 October 2019, together with 2019's, so its mismatch is real.
+# The API gives 2011-10-10 for the 2022 Economic Sciences prize; the prize was announced
+# on 10 October 2022 (the nobelprize.org press release of that date, cited in the English
+# Wikipedia articles on Bernanke, Diamond and Dybvig).
+NOBEL_LATE_OK = {(2018, "lit")}
+NOBEL_DATE_FIX = {(2022, "eco"): "2022-10-10"}
 MONTHS = "January February March April May June July August September October November December".split()
 
 
@@ -98,8 +105,12 @@ def nobel():
             d = wm.get_json(url, kind="nobel")
             for p in d.get("nobelPrizes", []):
                 date = p.get("dateAwarded")
+                if (y, cat) in NOBEL_DATE_FIX:
+                    date = NOBEL_DATE_FIX[(y, cat)]
+                elif date and int(date[:4]) != y and (y, cat) not in NOBEL_LATE_OK:
+                    raise SystemExit(f"nobel {y} {cat}: dateAwarded {date} is outside the prize year; add it to NOBEL_DATE_FIX")
                 for lau in p.get("laureates", []):
-                    if "knownName" not in lau:      # organisations carry orgName instead
+                    if "knownName" not in lau:      # organizations carry orgName instead
                         continue
                     det = wm.get_json(lau["links"][0]["href"].replace("/2/", "/2.1/"), kind="nobel")
                     det = det[0] if isinstance(det, list) else det
@@ -108,7 +119,7 @@ def nobel():
                         print("nobel: no wikidata id or date for", lau["knownName"]["en"], y, cat)
                         continue
                     out.append({"qid": wd_, "event_type": "award", "award": NOBEL[cat], "event_date": date,
-                                "date_source": "Nobel Prize API dateAwarded"})
+                                "date_source": "Nobel Prize API dateAwarded" if (y, cat) not in NOBEL_DATE_FIX else "nobelprize.org press release, 10 October 2022"})
     return out
 
 

@@ -25,21 +25,25 @@ The list was frozen in `data/events.csv` and committed before any pageview was f
 
 | Measure | Definition |
 |---|---|
-| Baseline | median daily views, days -60 to -8 |
+| Baseline | median daily views, days -60 to -8; for the Academy Awards, the 53 days ending 8 days before that year's nominations (`data/academy_nominations.csv`) |
 | Peak | maximum daily views, days 0 to +3 |
-| Half-life | days from the peak until the centered 7-day mean of excess views falls below half the peak excess |
+| Half-life | days from the smoothed peak until the centered 7-day mean of excess views falls below half of it |
+| Spike | peak at least twice the baseline on days 0 to 3; "delayed" if that only happens on days 4 to 30 |
 | After week one | share of the first year's excess views that arrive more than 7 days after the peak |
 | Lift | median views on days +335 to +365 divided by baseline |
 
-Views are adjusted for day of week using factors from the baseline window. Three decay models (exponential, power law, and the biexponential form of Candia et al. 2019) are fitted to log excess views after the peak and compared by AIC.
+Views are adjusted for day of week using factors from the baseline window. Three decay models (exponential, power law, and the biexponential form of Candia et al. 2019) are added to the baseline, fitted to log(1 + daily views) on every day after the peak, and compared by AIC. `scripts/simulate_selection.py` checks on simulated series that the comparison recovers the true model (`tables/model_recovery.csv`). The spec's original measures are kept as sensitivity rows (`tables/half_life_sensitivity.csv`, `tables/oscar_baseline.csv`, the `spec_` columns of `tables/model_wins.csv`).
 
 ## How to run
 
 ```bash
 pip install -r requirements.txt
 export FAME_CACHE=~/data-cache/fame-half-life   # raw responses, outside the repo
-python scripts/fetch_events.py      # Wikidata, Nobel API, Wikipedia -> data/events.csv (frozen)
-python scripts/fetch_pageviews.py   # Wikimedia pageviews and rename check -> data/series.csv.gz, data/fetch_log.csv
+python scripts/fetch_events.py      # Wikidata, Nobel API, Wikipedia -> data/events.csv (frozen 2026-10-28; do not rerun)
+python scripts/amend_events.py      # post-audit amendment: the three 2022 economics laureates
+python scripts/academy_nominations.py   # data/academy_nominations.csv
+python scripts/fetch_pageviews.py   # pageviews and rename check -> data/fetch_log.csv; series files rebuilt from the cache
+python scripts/simulate_selection.py    # tables/model_recovery.csv
 python scripts/analyze.py           # results/ and tables/
 python scripts/make_figures.py      # figures/
 python scripts/export_numbers.py    # site/numbers.json
@@ -48,7 +52,7 @@ python scripts/build_site.py        # index.html, README.md, writeup.md, write-u
 python scripts/check_fit_parity.py  # browser fits against Python fits (needs node)
 ```
 
-The processed series are committed, so `analyze.py` onward runs without network access. The fetchers are slow on purpose: about two requests a second, with every response cached.
+The daily series are not committed. `fetch_pageviews.py` rebuilds `data/series.csv.gz` and the Oscar baseline windows from the response cache in `$FAME_CACHE`, offline once the cache exists; from an empty cache it takes 2 to 3 hours, at about two requests a second. The same series are published per event in `assets/series/`.
 
 ## Repo layout
 
@@ -56,7 +60,7 @@ The processed series are committed, so `analyze.py` onward runs without network 
 |---|---|
 | `queries/` | SPARQL text for deaths, Academy Awards, Booker winners and occupation groups |
 | `scripts/` | fetchers, `fits.py` (measures and models), analysis, figures, site builders |
-| `data/` | the frozen event list, fetch log and daily series |
+| `data/` | the frozen event list (plus three amended rows), fetch log, occupation groups and Academy nominations dates |
 | `results/`, `tables/` | every number the pages quote |
 | `index.html`, `assets/` | the interactive page; `assets/fit.js` is a line-for-line port of `scripts/fits.py` |
 | `overview/` | the write-up, generated from `site/overview.fragment.html` by the shared overview builder |

@@ -1,0 +1,4 @@
+baseline,baseline_median,lift_median
+pre-season (53 days ending 8 days before nominations),9378,0.5846
+spec (days -60 to -8 before the ceremony),1.512e+04,0.3784
+days -150 to -90 before the ceremony,5641,1.028

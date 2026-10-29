@@ -5,3 +5,6 @@ __pycache__/
 Icon
 .env
 .venv/
+data/series.csv.gz
+data/oscar_base.csv.gz
+data/oscar_early.csv.gz

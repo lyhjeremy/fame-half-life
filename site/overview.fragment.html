@@ -3,11 +3,12 @@
   "out": "/Users/jeremylee/My Drive/6. Data Projects/Project 40 Fame Half-Life/fame-half-life/overview/index.html",
   "url": "https://lyhjeremy.github.io/fame-half-life/overview/",
   "title": "Fame Half-Life: how fast attention fades after a death or a major award",
-  "description": "Daily English Wikipedia pageviews around {{nDeaths}} deaths and {{nAwards}} awards, 2016 to 2025. The spike halves within {{deathHalfLife}} day of the peak; a year later a page draws {{deathLift}} times its old traffic after a death, {{nobelLift}} times after a Nobel Prize and {{oscarLift}} times after an Oscar.",
+  "description": "Daily English Wikipedia pageviews around {{nDeaths}} deaths and {{nAwards}} awards, 2016 to 2025. Half the extra traffic is gone in about {{deathHalfLife}} days; a year later a page draws {{deathLift}} times its old traffic after a death and {{awardLift}} times after an award. Corrected 29 October 2026.",
   "og_title": "Fame Half-Life",
   "og_description": "How fast the world stops looking someone up, measured in daily Wikipedia pageviews around deaths and major awards.",
   "extra_css": "\n  :root { --signal: var(--accent); --signal-2: var(--accent2); --ink-2: var(--muted); --panel: var(--card); --font-body: var(--sans); --font-mono: var(--mono); --s1: 8px; --s2: 16px; --s3: 24px; }\n  .exhibit { margin: 30px 0 8px; padding: 20px 20px 14px; background: var(--card); border: 1px solid var(--rule); }\n  .exhibit .chart { margin: 8px 0 0; }\n  .exhibit figcaption { margin-top: 10px; font-family: var(--sans); font-size: 13.5px; color: var(--muted); line-height: 1.5; }\n  .ex-label { font-family: var(--display); font-style: italic; font-size: 16px; color: var(--accent); margin: 0 0 2px; }\n  .exhibit .chart-title { font-family: var(--sans); font-weight: 600; font-size: 17px; line-height: 1.35; margin: 0; color: var(--ink); max-width: 46ch; }\n  .seg .btn { background: var(--paper); color: var(--ink); border: 1px solid var(--muted); font-family: var(--sans); cursor: pointer; font-size: 13px; padding: 4px 10px; margin-left: -1px; }\n  .seg .btn[aria-pressed=\"true\"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }\n  .tbl { overflow-x: auto; margin: 18px 0 0; }\n  .tbl table { min-width: 560px; }\n  .tbl td.num, .tbl th.num { font-family: var(--mono); text-align: right; white-space: nowrap; }\n  .exhibit img { max-width: 100%; height: auto; display: block; }\n"
 } -->
+<link rel="icon" href="data:,">
 <link rel="stylesheet" href="../assets/charts.css">
 
 <div class="wrap">
@@ -18,7 +19,7 @@
 
   <section class="hero">
     <p class="kicker">{{nEvents}} events, one year of attention each</p>
-    <h1>The spike is gone in days. What is left depends on who you were before.</h1>
+    <h1>{{heroTitle}}</h1>
     <p class="hero-sub">{{heroSub}}</p>
     <div class="cta-row">
       <a class="btn btn-primary" href="../">Look someone up</a>
@@ -27,14 +28,20 @@
     </div>
     <div class="claims">
       <div class="claim"><div class="n">{{deathPeakX}}x</div><p>the usual daily traffic, on the peak day after a death (median of {{nDeaths}} deaths). The peak falls on the day after the death in {{deathPeakDay1}}% of them.</p></div>
-      <div class="claim"><div class="n">{{winBiAll}}%</div><p>of {{nFitted}} fitted events follow a biexponential fade better than a single exponential or a power law, by AIC.</p></div>
-      <div class="claim"><div class="n">{{deathLift}}x</div><p>the old traffic, a year after a death (median). After a Nobel Prize it is {{nobelLift}}x; after an Oscar, {{oscarLift}}x.</p></div>
+      <div class="claim"><div class="n">{{deathHalfDays}}</div><p>until half the extra traffic is gone after a death (median, smoothed over a week). {{deathDelayed}} deaths spike late, when the news came days after.</p></div>
+      <div class="claim"><div class="n">{{deathLift}}x</div><p>the old traffic, a year after a death (median). After an award it is {{awardLift}}x; after a Nobel Prize, {{nobelLift}}x.</p></div>
     </div>
   </section>
 </div>
 
 <div class="wrap">
 <div class="route">
+
+  <section class="stop stop--warn">
+    <p class="eyebrow">Correction</p>
+    <h2>What changed on 29 October 2026</h2>
+    <p>{{correction}} The full list is in <a href="https://github.com/lyhjeremy/fame-half-life/blob/main/docs/decisions.md">docs/decisions.md</a>, entries 26 to 33.</p>
+  </section>
 
   <section class="stop">
     <p class="eyebrow">The question</p>
@@ -63,7 +70,7 @@
 
   <section class="stop">
     <p class="eyebrow">Finding 2</p>
-    <h2>The fade has two speeds</h2>
+    <h2>{{curveTitle}}</h2>
     <p>{{f2Text}}</p>
     <figure class="exhibit">
       <p class="ex-label">Exhibit 2</p>
@@ -73,9 +80,18 @@
         <svg id="wins" viewBox="0 0 900 180" role="img" aria-labelledby="wins-t"><title id="wins-t">Share of events won by each model: the biexponential wins {{winBiDeath}}% of deaths and {{winBiAward}}% of awards.</title></svg>
         <p class="legend"><span class="l-blue">biexponential</span><span class="l-red">power law</span><span class="l-gray">exponential</span></p>
       </div>
-      <figcaption>Lowest AIC on log excess views, from the day after the peak to day +365, on days with views above baseline. The biexponential has four parameters and the others two; AIC charges for the difference.</figcaption>
-      <noscript><img src="../figures/model_wins.png" alt="Bars showing the biexponential model winning most events among deaths and awards." width="1290" height="420"></noscript>
+      <figcaption>Lowest AIC. Each model is the baseline plus a decaying excess, fitted to log(1 + daily views) on every day from the one after the peak to day +365. The biexponential has four parameters and the others two; AIC charges for the difference.</figcaption>
+      <noscript><img src="../figures/model_wins.png" alt="Bars showing the share of events each model wins, for deaths and awards." width="1290" height="420"></noscript>
     </figure>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>True model</th><th class="num">Noise 0.15</th><th class="num">Noise 0.30</th><th class="num">First method, 0.15</th><th class="num">First method, 0.30</th></tr></thead>
+        <tbody>
+{{recoveryRows}}
+        </tbody>
+      </table>
+    </div>
+    <p class="small">How often the selector names the true model on {{simN}} simulated series per row (<code>scripts/simulate_selection.py</code>). "First method" is the comparison published on 28 October, which fitted only days above the baseline.</p>
   </section>
 
   <section class="stop stop--key">
@@ -123,12 +139,20 @@
     <p class="eyebrow">Checks</p>
     <h2>What moves the numbers, and what does not</h2>
     <p>{{checksText}}</p>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Half-life measure</th><th class="num">Deaths, median days</th><th class="num">Deaths, one day</th><th class="num">Awards, median days</th><th class="num">Awards, one day</th></tr></thead>
+        <tbody>
+{{halfRows}}
+        </tbody>
+      </table>
+    </div>
   </section>
 
   <section class="stop stop--warn">
     <p class="eyebrow">Limits</p>
     <h2>What this cannot show</h2>
-    <p>English Wikipedia only, and a pageview is someone looking a person up, which is not the same as caring about them. The 30-sitelink floor decides who counts as famous and leans toward people known in many countries; it is today's count, so a few people clear it because of the death itself. Some automated traffic gets past the <code>user</code> filter. A death or prize can coincide with other news about the same person, a film release or a scandal, and nothing here separates the two. For the Academy Awards the baseline falls in awards season, after the nominations, so the "before" traffic is already raised; that is part of why Oscar winners settle below it. The award sample is small ({{nAwards}} events, {{nBallon}} of them Ballon d'Or and {{nBooker}} Booker), so differences between prizes are descriptive.</p>
+    <p>English Wikipedia only, and a pageview is someone looking a person up, which is not the same as caring about them. The 30-sitelink floor decides who counts as famous and leans toward people known in many countries; it is today's count, so a few people clear it because of the death itself. Some automated traffic gets past the <code>user</code> filter. A death or prize can coincide with other news about the same person, a film release or a scandal, and nothing here separates the two. Awards season raises an Oscar winner's traffic for months, so any "before" window is a choice: the Oscar lift is {{oscarLiftPre}} against the 53 days ending a week before the nominations, {{oscarLiftSpec}} against the spec's window after them, and {{oscarLiftEarly}} against days -150 to -90 before the ceremony. The award sample is small ({{nAwards}} events, {{nBallon}} of them Ballon d'Or and {{nBooker}} Booker), so differences between prizes are descriptive.</p>
   </section>
 
   <section class="stop stop--end">
@@ -137,8 +161,8 @@
     <dl class="specs">
       <div class="spec"><dt>Events</dt><dd>Wikidata SPARQL for deaths (run per half-year) and Academy Awards; the Nobel Prize API for laureates and announcement dates; each year's English Wikipedia article for Ballon d'Or and Booker dates. Queries in <code>queries/</code>, list in <code>data/events.csv</code>.</dd></div>
       <div class="spec"><dt>Pageviews</dt><dd>Wikimedia REST API, <code>per-article/en.wikipedia/all-access/user/daily</code>, days -60 to +365, titles resolved through Wikidata at fetch time; page moves inside the window found from revision summaries.</dd></div>
-      <div class="spec"><dt>Measures</dt><dd>Baseline is the median of days -60 to -8, peak the maximum of days 0 to +3, half-life the days from the peak until the centered 7-day mean of excess views falls below half the peak excess, lift the median of days +335 to +365 over baseline. Day-of-week factors from the baseline window.</dd></div>
-      <div class="spec"><dt>Models</dt><dd>Exponential, power law and biexponential fitted to log excess views; AIC from the residual sum of squares. The browser runs the same code: <code>assets/fit.js</code> is a port of <code>scripts/fits.py</code>, checked against it on 60 events.</dd></div>
+      <div class="spec"><dt>Measures</dt><dd>Baseline is the median of days -60 to -8 (for the Academy Awards, of the 53 days ending a week before the nominations), peak the maximum of days 0 to +3, half-life the days from the smoothed peak until the centered 7-day mean of excess views falls below half of it, lift the median of days +335 to +365 over baseline. Day-of-week factors from the baseline window.</dd></div>
+      <div class="spec"><dt>Models</dt><dd>Baseline plus an exponential, power-law or biexponential decay, fitted to log(1 + daily views) on every day after the peak; AIC from the residual sum of squares; the selector checked on simulated series. The browser runs the same code: <code>assets/fit.js</code> is a port of <code>scripts/fits.py</code>, checked against it by <code>scripts/check_fit_parity.py</code>.</dd></div>
       <div class="spec"><dt>Regressions</dt><dd>OLS with HC3 errors of log half-life and log lift on event type, log baseline, occupation group and year; for deaths, also age at death. Full table in <code>tables/regressions.csv</code>.</dd></div>
       <div class="spec"><dt>Prior work</dt><dd>Candia, Jara-Figueroa, Rodriguez-Sickert, Barabási and Hidalgo (2019), <a href="https://doi.org/10.1038/s41562-018-0474-5">The universal decay of collective memory and attention</a>, <i>Nature Human Behaviour</i> 3, 82–91.</dd></div>
       <div class="spec"><dt>Built with</dt><dd>Python (pandas, NumPy, statsmodels, matplotlib); plain JavaScript and inline SVG for the charts. Every number on this page is written from the analysis outputs by <code>scripts/export_numbers.py</code>.</dd></div>

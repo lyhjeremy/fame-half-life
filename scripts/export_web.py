@@ -1,8 +1,12 @@
 """Data for the page: assets/data.json (index, averaged curves, model wins, lift and group
 summaries) and assets/series/NN.json (raw daily views per event, 40 shards)."""
 import datetime as dt, json, pathlib
+import sys
 import numpy as np
 import pandas as pd
+
+sys.path.insert(0, str(pathlib.Path(__file__).parent))
+import analyze
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SHARDS = 40
@@ -20,10 +24,14 @@ def main():
     idx = [[e.event_id, e.title, e.event_type[0], e.award if isinstance(e.award, str) else "", e.event_date,
             e.occupation_group, int(e.shard)] for e in m.itertuples()]
     shards = {k: {} for k in range(SHARDS)}
+    bases = analyze.load_windows("oscar_base")
     for e in m.itertuples():
         v = s.loc[e.event_id].to_numpy(dtype=float)
         wd0 = (dt.date.fromisoformat(e.event_date) - dt.timedelta(days=60)).weekday()
         shards[e.shard][e.event_id] = {"wd0": wd0, "v": [None if np.isnan(x) else int(x) for x in v]}
+        if e.event_id in bases:   # Academy Awards: the pre-nomination baseline window
+            bv, bwd = bases[e.event_id]
+            shards[e.shard][e.event_id]["b"] = {"wd0": bwd, "v": [int(x) for x in bv]}
     out = ROOT / "assets/series"
     out.mkdir(parents=True, exist_ok=True)
     for k, d in shards.items():
