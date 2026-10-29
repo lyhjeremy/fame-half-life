@@ -19,7 +19,7 @@ Choices the spec did not settle, recorded when they were made. Phase 0 entries w
 ## Phase 1: pageviews
 
 12. **User-Agent.** Requests carry `fame-half-life/1.0 (https://github.com/lyhjeremy/fame-half-life; https://lyhjeremy.com)`. A first string ending in `python-urllib` was throttled with HTTP 429 within minutes; the run was stopped, the string changed, and the request gap raised to 0.5 seconds across all threads.
-13. **Renames.** A page move leaves a revision whose summary reads "moved page [[A]] to [[B]]". Any such revision between day -60 and day +365 drops the event.
+13. **Renames.** A page move leaves a revision whose summary reads "moved page [[A]] to [[B]]". Any such revision between day -60 and day +365 drops the event. The first pass checked only the window and turned up 7 events with no data at all. Their articles had been moved after the window, so the current title had no views back then. The check now runs on to the fetch date. When an article was moved after its window, every title in that later move history is a candidate. The views come from whichever title drew the most during the window, since the others were redirects or did not exist yet. A rule that simply took the source of the earliest later move picked a vandal's title twice, where the vandal's own move had been suppressed from the history.
 14. **Missing days.** The pageview API leaves out days with no views; those are filled with 0. Days after 27 October 2026, the last complete day on the fetch date, are left empty.
 
 ## Phase 2: measures and fits
@@ -32,3 +32,6 @@ Choices the spec did not settle, recorded when they were made. Phase 0 entries w
 20. **Lift near the end of the window.** Events in the last days of October 2025 do not reach day +365 by 27 October 2026. Lift is computed when at least 21 of days +335 to +365 exist.
 21. **Baseline under 1 view a day** leaves no ratio to compute; such events are dropped and counted.
 22. **Bot check.** Any day above 50 times the median of its six neighbors (three each side) is cut to that bound, and every measure is recomputed.
+23. **A second fade measure.** On the first few hundred events the half-life as specified came out at one day almost every time, because the spike is narrower than the 7-day smoothing window. It stays the reported half-life. Next to it the analysis reports the share of the first year's excess views (counted from the peak day) that arrive more than 7 days after the peak. That share varies from event to event, so it carries the group comparisons. The averaged curve's half and tenth points and the fitted time constants are reported too.
+24. **No SciPy.** The spec lists SciPy for the curve fits. The fits use a fixed grid and a hand-written Nelder-Mead instead, so `assets/fit.js` can run exactly the same steps in the browser. `scripts/check_fit_parity.py` confirms the two agree.
+25. **Network faults are retried, never recorded.** A connection reset during the pageview run stopped it once. The cache stores only successful answers and genuine HTTP 404s, so the rerun picked up where it stopped. Any reset, timeout or DNS failure is retried.

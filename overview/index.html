@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Fame Half-Life: how fast attention fades after a death or a major award</title>
+<meta name="description" content="Daily English Wikipedia pageviews around 1,905 deaths and 175 awards, 2016 to 2025. The spike halves within 1 day of the peak; a year later a page draws 1.08 times its old traffic after a death, 8.78 times after a Nobel Prize and 0.38 times after an Oscar." />
+<meta name="theme-color" content="#EEEDE6" />
+<meta property="og:title" content="Fame Half-Life" />
+<meta property="og:description" content="How fast the world stops looking someone up, measured in daily Wikipedia pageviews around deaths and major awards." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://lyhjeremy.github.io/fame-half-life/overview/" />
+<link href="" rel="stylesheet" />
+<style>
+  :root {
+    --paper: #EEEDE6;
+    --card: #F6F5EF;
+    --plate: #F6F5EF;
+    --ink: #1B1E24;
+    --ink2: #4F5560;
+    --muted: #4F5560;
+    --rule: #C8C9C2;
+    --accent: #9E3A2C;
+    --accent2: #284B73;
+    --link: #9E3A2C;
+    --serif: "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+    --sans: "IBM Plex Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --mono: "IBM Plex Mono", "SF Mono", Menlo, Consolas, monospace;
+    --display: "Newsreader", "Iowan Old Style", Georgia, serif;
+    --edge: #757A80;
+    --spine:  92px;
+    --col:    min(100% - 2.6rem, 62rem);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #181A1F;
+      --card: #21242A;
+      --plate: #21242A;
+      --ink: #E5E6E2;
+      --ink2: #A5AAB3;
+      --muted: #A5AAB3;
+      --rule: #3A3E45;
+      --accent: #D88E80;
+      --accent2: #86A9D6;
+      --link: #D88E80;
+      --edge: #6B7079;
+    }
+  }
+
+  @font-face{font-family:"Source Serif 4";src:url("../fonts/SourceSerif4-400.woff2")format("woff2");font-weight:400;font-display:swap}
+  @font-face{font-family:"Source Serif 4";src:url("../fonts/SourceSerif4-600.woff2")format("woff2");font-weight:600;font-display:swap}
+  @font-face{font-family:"IBM Plex Sans";src:url("../fonts/IBMPlexSans-400.woff2")format("woff2");font-weight:400;font-display:swap}
+  @font-face{font-family:"IBM Plex Sans";src:url("../fonts/IBMPlexSans-600.woff2")format("woff2");font-weight:600;font-display:swap}
+  @font-face{font-family:"IBM Plex Mono";src:url("../fonts/IBMPlexMono-400.woff2")format("woff2");font-weight:400;font-display:swap}
+
+  * { box-sizing: border-box; border-radius: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: var(--serif); font-size: clamp(17px, 0.55rem + 0.6vw, 19.5px);
+    line-height: 1.68; -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  }
+  img { max-width: 100%; height: auto; display: block; }
+  a { color: var(--link); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 0; }
+  strong { font-weight: 700; color: var(--ink); }
+  code { font-family: var(--mono); font-size: .86em;
+         background: color-mix(in srgb, var(--ink) 7%, transparent);
+         padding: .12em .38em; border-radius: 0; }
+  .wrap { width: var(--col); margin: 0 auto; }
+
+  .eyebrow { font-family: var(--mono); font-weight: 600; font-size: 11.5px;
+             letter-spacing: .17em; text-transform: uppercase; color: var(--muted);
+             margin: 0 0 14px; }
+
+  .masthead { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; padding: 30px 0 0; }
+  .logo { font-family: var(--sans); font-weight: 800; font-size: 21px;
+          letter-spacing: -.02em; display: flex; align-items: center; gap: 9px; }
+  .dot { width: 9px; height: 9px; border-radius: 0; background: var(--accent); flex: none; }
+  .tagline { font-size: 15px; color: var(--ink2); font-family: var(--sans); }
+
+  .hero { padding: 44px 0 54px; }
+  .kicker { font-family: var(--sans); font-size: clamp(18px, 2.1vw, 23px); font-weight: 600;
+            color: var(--muted); margin: 0 0 8px; letter-spacing: -.01em; }
+  .hero h1 { font-family: var(--sans); font-size: clamp(37px, 6vw, 72px); font-weight: 800;
+             letter-spacing: -.035em; line-height: 1.04; margin: 0; max-width: 17ch; }
+  .hero-sub { margin: 24px 0 0; font-size: 1.06em; color: var(--ink2); max-width: 60ch; }
+
+  .cta-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 30px; align-items: center; }
+  .btn { display: inline-block; padding: 13px 26px; border-radius: 0;
+         font-family: var(--sans); font-weight: 700; font-size: 16px;
+         text-decoration: none; border: 1px solid var(--ink); }
+  .btn:hover { transform: translateY(-1px); }
+  .btn-primary { background: var(--ink); color: var(--paper); }
+  .textlink { font-family: var(--sans); font-size: 16px; font-weight: 600; color: var(--ink2);
+              text-decoration: underline; text-underline-offset: 4px;
+              text-decoration-thickness: 1px; }
+  .textlink:hover { color: var(--ink); }
+
+  .claims { display: grid; grid-template-columns: 1fr; gap: 0 52px; margin: 50px 0 0; }
+  @media (min-width: 760px) { .claims { grid-template-columns: 1fr 1fr; } }
+  .claim { padding: 18px 0 20px; border-top: 1px solid var(--rule); }
+  .claim:first-child, .claim:nth-child(2) { border-top: 2px solid var(--ink); }
+  @media (max-width: 759px) { .claim:nth-child(2) { border-top: 1px solid var(--rule); } }
+  .claim .n { font-family: var(--sans); font-weight: 800; font-size: 40px; line-height: 1.05;
+              color: var(--accent); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+  .claim h3 { margin: 0 0 6px; }
+  .claim p { margin: 9px 0 0; font-size: 15.5px; color: var(--ink2); line-height: 1.5;
+             font-family: var(--sans); }
+
+  .route { position: relative; padding-bottom: 30px; }
+  .route::before { content: ""; position: absolute; left: calc(var(--spine) / 2); top: 8px;
+                   bottom: 80px; width: 2px; background: var(--rule); }
+  .stop { position: relative; padding: 0 0 76px var(--spine); }
+  .stop::before { content: ""; position: absolute; left: calc(var(--spine) / 2 - 7px); top: 7px;
+                  width: 16px; height: 16px; border-radius: 0;
+                  background: var(--paper); border: 2px solid var(--ink); box-sizing: border-box; }
+  .stop--key::before { background: var(--accent); border-color: var(--accent); }
+  .stop--warn::before { background: var(--accent2); border-color: var(--accent2); }
+  .stop--end::before { background: var(--ink); }
+
+  h2 { font-family: var(--sans); font-size: clamp(27px, 3.7vw, 38px); font-weight: 800;
+       letter-spacing: -.027em; line-height: 1.13; margin: 12px 0 16px; max-width: 19ch; }
+  h3 { font-family: var(--sans); font-size: 17px; font-weight: 700; margin: 0 0 7px;
+       letter-spacing: -.012em; }
+  .stop p { margin: 0 0 17px; max-width: 60ch; color: var(--ink2); }
+
+  .bignum { font-family: var(--sans); font-weight: 800; font-size: clamp(74px, 10vw, 128px);
+            line-height: .86; letter-spacing: -.05em; margin: 6px 0 4px; color: var(--accent);
+            font-variant-numeric: tabular-nums; }
+  .bignum-note { font-family: var(--sans); font-size: 16px; color: var(--muted); margin: 0 0 20px; }
+
+  /* A white-background chart would glow in dark mode; the plate makes it read
+     as a deliberately printed page instead. */
+  figure { margin: 28px 0 0; }
+  .plate { background: var(--plate); border: 1px solid var(--rule); border-radius: 0;
+           padding: 14px; overflow: hidden; }
+  .plate img { border-radius: 0; }
+  .plate--flush { padding: 0; }
+  .shot { border-radius: 0; border: 1px solid var(--rule);
+          overflow: hidden; background: var(--card); }
+  /* min() so the cap never exceeds the column on a phone */
+  .shot--narrow { max-width: min(430px, 100%); }
+  figcaption { margin-top: 11px; font-family: var(--sans); font-size: 14.5px;
+               color: var(--muted); line-height: 1.5; }
+  .panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(258px, 1fr));
+            gap: 22px; margin-top: 28px; }
+  .panels figure { margin: 0; }
+
+  .pull { margin: 30px 0 0; padding: 20px 25px; border-left: 3px solid var(--accent);
+          background: color-mix(in srgb, var(--accent) 7%, transparent);
+          border-radius: 0; }
+  .pull p { margin: 0 0 9px; color: var(--ink); max-width: none; }
+  .pull p:last-of-type { margin: 0; }
+  .pull .who { font-family: var(--mono); font-size: 11px; letter-spacing: .12em;
+               text-transform: uppercase; color: var(--muted); display: block; margin-top: 9px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(238px, 1fr));
+          gap: 1px; margin-top: 28px; background: var(--rule);
+          border: 1px solid var(--rule); border-radius: 0; overflow: hidden; }
+  .cell { background: var(--paper); padding: 22px 20px; }
+  .cell p { font-size: 15px; margin: 0; color: var(--ink2); max-width: none;
+            line-height: 1.55; font-family: var(--sans); }
+
+  /* results tables: scroll inside their own box, never the page */
+  .tablewrap { margin-top: 26px; overflow-x: auto; border: 1px solid var(--rule);
+               border-radius: 0; background: var(--card); }
+  table { border-collapse: collapse; width: 100%; min-width: 480px;
+          font-family: var(--sans); font-size: 15.5px; }
+  th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--rule); }
+  th { font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
+       text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  td { color: var(--ink2); font-variant-numeric: tabular-nums; }
+  tr:last-child td { border-bottom: 0; }
+  .win td { color: var(--ink); font-weight: 700;
+            background: color-mix(in srgb, var(--accent) 8%, transparent); }
+
+  /* real terminal output, quoted verbatim */
+  .term { margin-top: 26px; background: #14141f; color: #e6e3da; border-radius: 0;
+          padding: 18px 20px; overflow-x: auto;
+          border: 1px solid #2a2a3a; }
+  .term pre { margin: 0; font-family: var(--mono); font-size: 13px; line-height: 1.62;
+              white-space: pre; }
+  .term .c { color: #9aa08f; }
+  .term .g { color: #7fd18f; }
+  .term .y { color: #E3BC5E; }
+
+  .specs { margin-top: 26px; border-top: 1px solid var(--rule); }
+  .spec { display: grid; grid-template-columns: 1fr; gap: 2px;
+          padding: 14px 0; border-bottom: 1px solid var(--rule); }
+  @media (min-width: 700px) { .spec { grid-template-columns: 178px 1fr; gap: 24px; } }
+  .spec dt { font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em;
+             text-transform: uppercase; color: var(--muted); padding-top: 4px; }
+  .spec dd { margin: 0; font-size: 16px; color: var(--ink2); font-family: var(--sans); }
+
+  .close { padding: 6px 0 80px var(--spine); position: relative; }
+  .close h2 { max-width: 20ch; }
+  footer { border-top: 1px solid var(--rule); padding: 28px 0 60px;
+           font-family: var(--sans); font-size: 14.5px; color: var(--muted); }
+  footer a { color: var(--ink2); }
+  footer p { margin: 0 0 8px; }
+
+  @media (max-width: 640px) {
+    :root { --spine: 38px; }
+    .hero { padding: 36px 0 46px; }
+    .stop { padding-bottom: 58px; }
+    .plate { padding: 9px; }
+    .term { padding: 14px 14px; }
+    .term pre { font-size: 11.5px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .btn { }
+  }
+  @font-face{font-family:"Newsreader";src:url("../fonts/Newsreader-600.woff2")format("woff2");font-weight:600;font-style:normal;font-display:swap}
+  @font-face{font-family:"Newsreader";src:url("../fonts/Newsreader-400i.woff2")format("woff2");font-weight:400;font-style:italic;font-display:swap}
+
+  .btn:hover { transform: none; background: var(--accent); border-color: var(--accent); color: var(--paper); }
+  .pull { border: 1px solid var(--edge); border-left: 1px solid var(--edge); background: transparent; }
+  .term { background: var(--card); color: var(--ink); border: 1px solid var(--rule); }
+  .term .c { color: var(--muted); } .term .g { color: var(--accent2); } .term .y { color: var(--accent); }
+  .logo, .hero h1, h2, .claim .n, .bignum { font-family: var(--display); }
+
+  /* Language: a well-set book. Newsreader display, italic glosses, notes in the margin. */
+  .logo { font-weight: 600; font-size: 23px; letter-spacing: 0; }
+  .hero h1 { font-weight: 600; font-size: clamp(42px, 6.6vw, 80px); letter-spacing: -.015em; line-height: 1.02; max-width: 16ch; }
+  .kicker { font-family: var(--display); font-style: italic; font-weight: 400; font-size: clamp(20px, 2.3vw, 25px); color: var(--accent2); }
+  h2 { font-weight: 600; letter-spacing: -.01em; font-size: clamp(29px, 3.9vw, 40px); }
+  .claim, .claim:first-child, .claim:nth-child(2) { border-top: 1px solid var(--rule); }
+  .claim .n { font-weight: 600; font-size: 44px; letter-spacing: -.01em; color: var(--accent2); }
+  .bignum { font-weight: 600; color: var(--accent2); }
+  .eyebrow { font-family: var(--display); font-style: italic; text-transform: none; letter-spacing: 0;
+             font-size: 18px; font-weight: 400; color: var(--accent); }
+  :root { --spine: 0px; }
+  .route::before, .stop::before { display: none; }
+  .stop { padding-left: 0; }
+  @media (min-width: 980px) {
+    .stop { display: grid; grid-template-columns: 11rem minmax(0, 1fr); column-gap: 40px; }
+    .stop > * { grid-column: 2; }
+    .stop > .eyebrow { grid-column: 1; grid-row: 1 / span 2; text-align: right; padding-top: 14px;
+                       border-top: 1px solid var(--rule); }
+  }
+
+
+  :root { --signal: var(--accent); --signal-2: var(--accent2); --ink-2: var(--muted); --panel: var(--card); --font-body: var(--sans); --font-mono: var(--mono); --s1: 8px; --s2: 16px; --s3: 24px; }
+  .exhibit { margin: 30px 0 8px; padding: 20px 20px 14px; background: var(--card); border: 1px solid var(--rule); }
+  .exhibit .chart { margin: 8px 0 0; }
+  .exhibit figcaption { margin-top: 10px; font-family: var(--sans); font-size: 13.5px; color: var(--muted); line-height: 1.5; }
+  .ex-label { font-family: var(--display); font-style: italic; font-size: 16px; color: var(--accent); margin: 0 0 2px; }
+  .exhibit .chart-title { font-family: var(--sans); font-weight: 600; font-size: 17px; line-height: 1.35; margin: 0; color: var(--ink); max-width: 46ch; }
+  .seg .btn { background: var(--paper); color: var(--ink); border: 1px solid var(--muted); font-family: var(--sans); cursor: pointer; font-size: 13px; padding: 4px 10px; margin-left: -1px; }
+  .seg .btn[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .tbl { overflow-x: auto; margin: 18px 0 0; }
+  .tbl table { min-width: 560px; }
+  .tbl td.num, .tbl th.num { font-family: var(--mono); text-align: right; white-space: nowrap; }
+  .exhibit img { max-width: 100%; height: auto; display: block; }
+</style>
+</head>
+<body>
+<link rel="stylesheet" href="../assets/charts.css">
+
+<div class="wrap">
+  <header class="masthead">
+    <div class="logo">Fame Half-Life</div>
+    <div class="tagline">Wikipedia pageviews around deaths and awards, 2016 to 2025</div>
+  </header>
+
+  <section class="hero">
+    <p class="kicker">2,080 events, one year of attention each</p>
+    <h1>The spike is gone in days. What is left depends on who you were before.</h1>
+    <p class="hero-sub">Daily English Wikipedia views around 1,905 deaths and 175 major awards, 2016 to 2025. On the median death a page draws 200 times its usual traffic at the peak, and half the excess is gone within 1 day. The fade follows two exponentials, a fast one with a time constant of about 5.4 days and a slow one that barely moves within a year. A year on, the page draws 1.08 times its old traffic.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="../">Look someone up</a>
+      <a class="textlink" href="https://github.com/lyhjeremy/fame-half-life">Code and data</a>
+      <a class="textlink" href="https://github.com/lyhjeremy/fame-half-life/blob/main/writeup.md">Long-form notes</a>
+    </div>
+    <div class="claims">
+      <div class="claim"><div class="n">200x</div><p>the usual daily traffic, on the peak day after a death (median of 1,905 deaths). The peak falls on the day after the death in 43% of them.</p></div>
+      <div class="claim"><div class="n">90%</div><p>of 1,947 fitted events follow a biexponential fade better than a single exponential or a power law, by AIC.</p></div>
+      <div class="claim"><div class="n">1.08x</div><p>the old traffic, a year after a death (median). After a Nobel Prize it is 8.78x; after an Oscar, 0.38x.</p></div>
+    </div>
+  </section>
+</div>
+
+<div class="wrap">
+<div class="route">
+
+  <section class="stop">
+    <p class="eyebrow">The question</p>
+    <h2>When someone becomes news, how fast does the world stop looking them up?</h2>
+    <p>A death or a prize sends a burst of readers to a Wikipedia article. This study measures that burst for every person with an English article and at least 30 Wikidata sitelinks who died between January 2016 and October 2025 (1,905 after exclusions), and for the winners of six Nobel Prizes, five Academy Awards, the Ballon d'Or and the Booker Prize in the same years (175). For each event it reads daily views from 60 days before to a year after, from Wikimedia's pageview API, counting user agents only.</p>
+    <p>The event list was fixed and committed before a single pageview was fetched, so nothing about the results could shape who is in it. 21 deaths and 5 awards drop out because the article was written less than 30 days before the event and has no baseline; among them are George Floyd and Mahsa Amini, whose deaths made them known. 65 more drop because the article was renamed inside the window, which splits its views across two titles.</p>
+  </section>
+
+  <section class="stop">
+    <p class="eyebrow">Finding 1</p>
+    <h2>Half the spike is gone within a day or two</h2>
+    <p>On the median death the page draws 200 times its usual traffic on the peak day, which is the day after the death in 43% of cases. The averaged curve loses half its excess in 1 day and nine tenths in 5 days, and sits at 1.96 times baseline a month later and 1.09 times in the last month of the year. Awards peak at 817 times and lose nine tenths in 4 days. Deaths jump again on day +365, the anniversary; awards climb in the last week of the year as the next year's prize comes round. Measured as specified, the half-life is 1 day for deaths and 1 for awards; it is one day in 95% of deaths with a spike. Most of the attention comes at once: only 29% of a death's first-year excess views (median) arrive after the first week.</p>
+    <figure class="exhibit">
+      <p class="ex-label">Exhibit 1</p>
+      <div class="chart-head"><p class="chart-title">Median daily views as a multiple of each event's baseline</p><div class="seg" role="group" aria-label="Range" id="avg-range"></div></div>
+      <div class="chart">
+        <div data-loading class="skeleton sk-chart" aria-hidden="true"></div>
+        <svg id="avg" viewBox="0 0 900 320" role="img" aria-labelledby="avg-t" tabindex="0"><title id="avg-t">Median views relative to baseline for deaths and awards from 60 days before to a year after; both spike on day 0 or 1 and fall steeply within a week. Use the arrow keys to move the readout.</title></svg>
+        <div class="readout" id="avg-read" aria-live="polite"></div>
+        <p class="legend"><span class="l-red">deaths</span><span class="l-blue">awards</span><span class="l-gray l-dash">baseline</span></p>
+      </div>
+      <figcaption>Log scale. Shading is the middle half of events. Views are adjusted for day of week. Source: Wikimedia pageviews API; analysis in <code>scripts/analyze.py</code>.</figcaption>
+      <noscript><img width="1290" height="690" src="../figures/average_curve.png" alt="Median views relative to baseline for deaths and awards; both spike near day 0 and fall steeply within a week."></noscript>
+    </figure>
+  </section>
+
+  <section class="stop">
+    <p class="eyebrow">Finding 2</p>
+    <h2>The fade has two speeds</h2>
+    <p>Three curves were fitted to each event's excess views after the peak: an exponential, a power law, and the biexponential (a sum of two exponentials) that Candia et al. (2019) found in the decay of attention to songs, films and biographies over years. The biexponential has the lowest AIC for 91% of 1,808 deaths and 78% of 139 awards, with a median margin of 25 AIC points over the power law. Its fast part has a median time constant of 5.4 days; the slow part's is 1,418 days, so long that within a year it is close to a flat step above the old baseline. The power law still beats the exponential in 98% of events, which is what a long tail looks like. The two shapes agree with Candia et al. on form; their time scale is years since publication, this one is days since an event.</p>
+    <figure class="exhibit">
+      <p class="ex-label">Exhibit 2</p>
+      <p class="chart-title">Which model fits each event best</p>
+      <div class="chart">
+        <div data-loading class="skeleton sk-stats" aria-hidden="true"></div>
+        <svg id="wins" viewBox="0 0 900 180" role="img" aria-labelledby="wins-t"><title id="wins-t">Share of events won by each model: the biexponential wins 91% of deaths and 78% of awards.</title></svg>
+        <p class="legend"><span class="l-blue">biexponential</span><span class="l-red">power law</span><span class="l-gray">exponential</span></p>
+      </div>
+      <figcaption>Lowest AIC on log excess views, from the day after the peak to day +365, on days with views above baseline. The biexponential has four parameters and the others two; AIC charges for the difference.</figcaption>
+      <noscript><img width="1290" height="420" src="../figures/model_wins.png" alt="Bars showing the biexponential model winning most events among deaths and awards."></noscript>
+    </figure>
+  </section>
+
+  <section class="stop stop--key">
+    <p class="eyebrow">Finding 3</p>
+    <h2>A death leaves a page busier than before; an Oscar leaves it quieter</h2>
+    <p>A year after a death the median page draws 1.08 times its old traffic, and 59% of pages sit above their baseline. Awards spread far wider. Nobel laureates, with a median of 20 views a day beforehand, keep 8.78 times that. Academy Award winners start from 15,120 a day, already raised by awards season, and end the year at 0.38 times it.</p>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Event</th><th class="num">n</th><th class="num">Baseline views/day</th><th class="num">Peak</th><th class="num">Half-life, days</th><th class="num">After week one</th><th class="num">Lift</th></tr></thead>
+        <tbody>
+<tr><td>Death</td><td class="num">1,905</td><td class="num">202</td><td class="num">200x</td><td class="num">1</td><td class="num">29%</td><td class="num">1.08x</td></tr>
+<tr><td>Nobel Prize</td><td class="num">107</td><td class="num">20</td><td class="num">2978x</td><td class="num">1</td><td class="num">46%</td><td class="num">8.78x</td></tr>
+<tr><td>Academy Award</td><td class="num">50</td><td class="num">15,120</td><td class="num">25x</td><td class="num">1</td><td class="num">12%</td><td class="num">0.38x</td></tr>
+<tr><td>Ballon d'Or</td><td class="num">9</td><td class="num">20,300</td><td class="num">4x</td><td class="num">1</td><td class="num">85%</td><td class="num">0.87x</td></tr>
+<tr><td>Booker Prize</td><td class="num">9</td><td class="num">76</td><td class="num">222x</td><td class="num">1</td><td class="num">69%</td><td class="num">2.56x</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <figure class="exhibit">
+      <p class="ex-label">Exhibit 3</p>
+      <p class="chart-title">Views a year later as a multiple of the baseline</p>
+      <div class="chart">
+        <div data-loading class="skeleton sk-chart" aria-hidden="true"></div>
+        <svg id="lift" viewBox="0 0 900 280" role="img" aria-labelledby="lift-t"><title id="lift-t">Distribution of lift for deaths and awards; deaths cluster just above one, awards spread from well below one to far above it.</title></svg>
+        <p class="legend"><span class="l-red">deaths</span><span class="l-blue">awards</span></p>
+      </div>
+      <figcaption>Lift is median views on days +335 to +365 divided by the median of days -60 to -8. The dashed line is no change.</figcaption>
+      <noscript><img width="1290" height="570" src="../figures/lift.png" alt="Distribution of lift for deaths and awards."></noscript>
+    </figure>
+    <p>A regression of log lift on event type, log baseline, occupation group and year (OLS, HC3 errors, n = 2,080, R² = 0.25) puts awards 163% above deaths at the same prior traffic (p < 0.001). Among deaths, with age added (n = 1,902, R² = 0.33), each extra year of age at death goes with 2.0% less lift (p < 0.001). The same regression for log half-life explains almost nothing (R² = 0.03), because the half-life barely varies.</p>
+  </section>
+
+  <section class="stop">
+    <p class="eyebrow">Finding 4</p>
+    <h2>Which prize matters more than what the person did</h2>
+    <p>Among deaths, the share of the first year's extra views that arrive after the first week runs from 23% (business) to 33% (writing and journalism), and median lift from 0.97 times (business) to 1.22 times (music). The gap between Nobel and Oscar winners is wider than any gap between occupations.</p>
+    <figure class="exhibit">
+      <p class="ex-label">Exhibit 4</p>
+      <div class="chart-head"><p class="chart-title">By event type and, for deaths, by occupation</p><div class="seg" role="group" aria-label="Measure" id="groups-metric" data-start="late"></div></div>
+      <div class="chart">
+        <div data-loading class="skeleton sk-chart" aria-hidden="true"></div>
+        <svg id="groups" viewBox="0 0 900 420" role="img" aria-labelledby="groups-t"><title id="groups-t">Median share of extra views after week one, and median lift, by group.</title></svg>
+      </div>
+      <figcaption>Medians; groups under 15 events left out. Occupation is the first occupation on the person's Wikidata item that maps to one of nine groups.</figcaption>
+    </figure>
+  </section>
+
+  <section class="stop stop--warn">
+    <p class="eyebrow">Checks</p>
+    <h2>What moves the numbers, and what does not</h2>
+    <p>Bot leakage: capping any day above 50 times the median of its six neighbors touches 31 events and changes 1 half-life; median lift with the cap is 1.08 for deaths and 4.16 for awards. Renames: 65 events were dropped because the article moved to a new title inside the window. Smoothing: the median half-life is 2 days with a 3-day window, 1 with 7 and 1 with 14. The spike is narrower than the window, so the specified half-life is one day for most events; the late-share measure and the fitted curves are less sensitive to that choice. Day of week: the median page's busiest weekday draws 1.43 times its quietest, which is why every series is adjusted before measuring.</p>
+  </section>
+
+  <section class="stop stop--warn">
+    <p class="eyebrow">Limits</p>
+    <h2>What this cannot show</h2>
+    <p>English Wikipedia only, and a pageview is someone looking a person up, which is not the same as caring about them. The 30-sitelink floor decides who counts as famous and leans toward people known in many countries; it is today's count, so a few people clear it because of the death itself. Some automated traffic gets past the <code>user</code> filter. A death or prize can coincide with other news about the same person, a film release or a scandal, and nothing here separates the two. For the Academy Awards the baseline falls in awards season, after the nominations, so the "before" traffic is already raised; that is part of why Oscar winners settle below it. The award sample is small (175 events, 9 of them Ballon d'Or and 9 Booker), so differences between prizes are descriptive.</p>
+  </section>
+
+  <section class="stop stop--end">
+    <p class="eyebrow">Method</p>
+    <h2>How it was built</h2>
+    <dl class="specs">
+      <div class="spec"><dt>Events</dt><dd>Wikidata SPARQL for deaths (run per half-year) and Academy Awards; the Nobel Prize API for laureates and announcement dates; each year's English Wikipedia article for Ballon d'Or and Booker dates. Queries in <code>queries/</code>, list in <code>data/events.csv</code>.</dd></div>
+      <div class="spec"><dt>Pageviews</dt><dd>Wikimedia REST API, <code>per-article/en.wikipedia/all-access/user/daily</code>, days -60 to +365, titles resolved through Wikidata at fetch time; page moves inside the window found from revision summaries.</dd></div>
+      <div class="spec"><dt>Measures</dt><dd>Baseline is the median of days -60 to -8, peak the maximum of days 0 to +3, half-life the days from the peak until the centered 7-day mean of excess views falls below half the peak excess, lift the median of days +335 to +365 over baseline. Day-of-week factors from the baseline window.</dd></div>
+      <div class="spec"><dt>Models</dt><dd>Exponential, power law and biexponential fitted to log excess views; AIC from the residual sum of squares. The browser runs the same code: <code>assets/fit.js</code> is a port of <code>scripts/fits.py</code>, checked against it on 60 events.</dd></div>
+      <div class="spec"><dt>Regressions</dt><dd>OLS with HC3 errors of log half-life and log lift on event type, log baseline, occupation group and year; for deaths, also age at death. Full table in <code>tables/regressions.csv</code>.</dd></div>
+      <div class="spec"><dt>Prior work</dt><dd>Candia, Jara-Figueroa, Rodriguez-Sickert, Barabási and Hidalgo (2019), <a href="https://doi.org/10.1038/s41562-018-0474-5">The universal decay of collective memory and attention</a>, <i>Nature Human Behaviour</i> 3, 82–91.</dd></div>
+      <div class="spec"><dt>Built with</dt><dd>Python (pandas, NumPy, statsmodels, matplotlib); plain JavaScript and inline SVG for the charts. Every number on this page is written from the analysis outputs by <code>scripts/export_numbers.py</code>.</dd></div>
+    </dl>
+  </section>
+
+</div>
+
+  <footer>
+    <p>
+      Fame Half-Life ·
+      <a href="../">Lookup</a> ·
+      <a href="https://github.com/lyhjeremy/fame-half-life">Source</a> ·
+      <a href="../privacy/">Privacy</a> ·
+      MIT © 2026 Jeremy Lee
+    </p>
+  </footer>
+</div>
+<script src="../assets/fit.js"></script>
+<script src="../assets/fame.js"></script>
+</body>
+</html>

@@ -2,9 +2,10 @@
 
 For each event:
   1. resolve the article's current title through Wikidata (enwiki sitelink) at fetch time;
-  2. read the article's revision history over the window and look for page moves
-     (a move leaves a revision whose comment reads "moved page [[A]] to [[B]]");
-     pageviews follow titles, so an event with a move inside the window is dropped;
+  2. read the article's revision history from day -60 to the fetch date and look for page
+     moves (a move leaves a revision whose comment reads "moved page [[A]] to [[B]]");
+     pageviews follow titles, so an event with a move inside the window is dropped, and
+     for one moved later the views are read under the title it had during the window;
   3. fetch daily views, all-access, agent=user, for days -60 to +365.
 
 Every response is cached under $FAME_CACHE, so a rerun resumes where it stopped.
@@ -22,7 +23,8 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 PRE, POST = 60, 365
 LAST = dt.date(2026, 10, 27)      # last complete day of data on the fetch date, 2026-10-28
 PV = "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/{t}/daily/{a}/{b}"
-MOVE = re.compile(r"moved page \[\[", re.I)
+MOVE = re.compile(r"moved page \[\[([^\]]+)\]\] to \[\[([^\]]+)\]\]", re.I)
+FETCHED = dt.date(2026, 10, 28)
 
 
 def current_titles(qids):
@@ -38,7 +40,7 @@ def current_titles(qids):
 
 
 def moves(title, start, end):
-    """Timestamps of page moves recorded in the article's history between start and end."""
+    """(date, old title, new title) for page moves recorded in the article's history between start and end."""
     found, cont = [], {}
     while True:
         params = {"action": "query", "prop": "revisions", "titles": title, "rvprop": "timestamp|comment",
@@ -47,8 +49,9 @@ def moves(title, start, end):
         d = wm.get_json("https://en.wikipedia.org/w/api.php?" + urllib.parse.urlencode(params), kind="revisions")
         for p in d.get("query", {}).get("pages", []):
             for r in p.get("revisions", []):
-                if MOVE.search(r.get("comment", "") or ""):
-                    found.append(r["timestamp"][:10])
+                mm = MOVE.search(r.get("comment", "") or "")
+                if mm:
+                    found.append((r["timestamp"][:10], mm.group(1), mm.group(2)))
         if "continue" not in d:
             return found
         cont = {"rvcontinue": d["continue"]["rvcontinue"], "continue": d["continue"]["continue"]}
@@ -68,16 +71,33 @@ def one(r):
     start, end = day0 - dt.timedelta(days=PRE), min(day0 + dt.timedelta(days=POST), LAST)
     title = r.current_title
     log = {"event_id": r.event_id, "current_title": title, "title_changed": title != r.title,
-           "moves_in_window": "", "drop_reason": ""}
+           "moves_in_window": "", "moves_after_window": "", "title_used": "", "drop_reason": ""}
     if not title:
         log["drop_reason"] = "no English article at fetch time"
         return log, None
     mv = moves(title, start, end)
-    log["moves_in_window"] = ";".join(mv)
+    log["moves_in_window"] = ";".join(d for d, _, _ in mv)
     if mv:
         log["drop_reason"] = "article renamed inside the window"
         return log, None
-    v = views(title, start, end)
+    # A move after the window means the article had another title during it, and its
+    # views were counted under that title. Every title in the later move history is a
+    # candidate; the one with the most views in the window is the article (the others
+    # were redirects or did not exist yet).
+    later = moves(title, end + dt.timedelta(days=1), FETCHED)
+    log["title_used"] = title
+    v = None
+    if later:
+        log["moves_after_window"] = ";".join(d for d, _, _ in later)
+        cands = list(dict.fromkeys([t for _, a, b in later for t in (a, b)] + [title]))
+        best = -1
+        for c in cands:
+            cv = views(c, start, end)
+            tot = sum(cv.values()) if cv else -1
+            if tot > best:
+                best, v, log["title_used"] = tot, cv, c
+    else:
+        v = views(title, start, end)
     if v is None:
         log["drop_reason"] = "no pageview data"
         return log, None

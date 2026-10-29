@@ -1,0 +1,53 @@
+outcome,sample,term,coef,ci_low,ci_high,p,n,r2
+log_half_life,all,Intercept,10.785,-6.6931,28.264,0.2265,2062,0.029272
+log_half_life,all,"C(event_type, Treatment('death'))[T.award]",-0.19563,-0.25394,-0.13732,4.8422e-11,2062,0.029272
+log_half_life,all,"C(occupation_group, Treatment('screen'))[T.business]",-0.0093302,-0.15634,0.13768,0.90101,2062,0.029272
+log_half_life,all,"C(occupation_group, Treatment('screen'))[T.music]",-0.022319,-0.10473,0.060094,0.59556,2062,0.029272
+log_half_life,all,"C(occupation_group, Treatment('screen'))[T.other]",-0.016194,-0.18452,0.15213,0.85044,2062,0.029272
+log_half_life,all,"C(occupation_group, Treatment('screen'))[T.politics and law]",0.015659,-0.057418,0.088737,0.67449,2062,0.029272
+log_half_life,all,"C(occupation_group, Treatment('screen'))[T.religion]",0.021969,-0.26821,0.31215,0.88204,2062,0.029272
+log_half_life,all,"C(occupation_group, Treatment('screen'))[T.science and academia]",0.18759,0.084089,0.29108,0.00038174,2062,0.029272
+log_half_life,all,"C(occupation_group, Treatment('screen'))[T.sport]",-0.079104,-0.13987,-0.01834,0.010725,2062,0.029272
+log_half_life,all,"C(occupation_group, Treatment('screen'))[T.visual arts and design]",0.073101,-0.1497,0.2959,0.52019,2062,0.029272
+log_half_life,all,"C(occupation_group, Treatment('screen'))[T.writing and journalism]",-0.032289,-0.11156,0.046984,0.42468,2062,0.029272
+log_half_life,all,log_baseline,-0.012027,-0.023913,-0.00014033,0.047356,2062,0.029272
+log_half_life,all,year,-0.0052489,-0.013899,0.0034016,0.23434,2062,0.029272
+log_lift,all,Intercept,21.861,0.73418,42.988,0.042553,2080,0.252
+log_lift,all,"C(event_type, Treatment('death'))[T.award]",0.96687,0.77254,1.1612,1.8204e-22,2080,0.252
+log_lift,all,"C(occupation_group, Treatment('screen'))[T.business]",-0.11507,-0.29638,0.066237,0.21352,2080,0.252
+log_lift,all,"C(occupation_group, Treatment('screen'))[T.music]",0.22869,0.12502,0.33237,1.5373e-05,2080,0.252
+log_lift,all,"C(occupation_group, Treatment('screen'))[T.other]",-0.13531,-0.53333,0.2627,0.5052,2080,0.252
+log_lift,all,"C(occupation_group, Treatment('screen'))[T.politics and law]",-0.20887,-0.2908,-0.12694,5.8312e-07,2080,0.252
+log_lift,all,"C(occupation_group, Treatment('screen'))[T.religion]",-0.36891,-0.82896,0.091136,0.11602,2080,0.252
+log_lift,all,"C(occupation_group, Treatment('screen'))[T.science and academia]",-0.042193,-0.13969,0.055304,0.39633,2080,0.252
+log_lift,all,"C(occupation_group, Treatment('screen'))[T.sport]",-0.11762,-0.21773,-0.017507,0.021295,2080,0.252
+log_lift,all,"C(occupation_group, Treatment('screen'))[T.visual arts and design]",-0.18982,-0.32698,-0.052667,0.0066763,2080,0.252
+log_lift,all,"C(occupation_group, Treatment('screen'))[T.writing and journalism]",-0.067282,-0.17633,0.041766,0.22655,2080,0.252
+log_lift,all,log_baseline,-0.13803,-0.15998,-0.11609,6.2406e-35,2080,0.252
+log_lift,all,year,-0.010363,-0.020821,9.5398e-05,0.052127,2080,0.252
+log_half_life,deaths,Intercept,9.1769,-9.8826,28.236,0.34533,1886,0.032275
+log_half_life,deaths,"C(occupation_group, Treatment('screen'))[T.business]",0.0070759,-0.14072,0.15487,0.92524,1886,0.032275
+log_half_life,deaths,"C(occupation_group, Treatment('screen'))[T.music]",-0.008446,-0.094121,0.077229,0.84679,1886,0.032275
+log_half_life,deaths,"C(occupation_group, Treatment('screen'))[T.other]",-0.0087836,-0.18362,0.16605,0.92156,1886,0.032275
+log_half_life,deaths,"C(occupation_group, Treatment('screen'))[T.politics and law]",0.013928,-0.06081,0.088667,0.71492,1886,0.032275
+log_half_life,deaths,"C(occupation_group, Treatment('screen'))[T.religion]",0.020498,-0.26786,0.30885,0.88919,1886,0.032275
+log_half_life,deaths,"C(occupation_group, Treatment('screen'))[T.science and academia]",0.22177,0.10467,0.33886,0.00020561,1886,0.032275
+log_half_life,deaths,"C(occupation_group, Treatment('screen'))[T.sport]",-0.092003,-0.15723,-0.026778,0.005699,1886,0.032275
+log_half_life,deaths,"C(occupation_group, Treatment('screen'))[T.visual arts and design]",0.073761,-0.15055,0.29807,0.51925,1886,0.032275
+log_half_life,deaths,"C(occupation_group, Treatment('screen'))[T.writing and journalism]",-0.053153,-0.14169,0.035385,0.23934,1886,0.032275
+log_half_life,deaths,log_baseline,-0.022547,-0.037327,-0.0077677,0.0027891,1886,0.032275
+log_half_life,deaths,age_at_event,5.521e-05,-0.0016297,0.0017401,0.94879,1886,0.032275
+log_half_life,deaths,year,-0.0044294,-0.013864,0.0050051,0.35748,1886,0.032275
+log_lift,deaths,Intercept,22.47,7.4238,37.515,0.003422,1902,0.32986
+log_lift,deaths,"C(occupation_group, Treatment('screen'))[T.business]",-0.21428,-0.36917,-0.059398,0.0066956,1902,0.32986
+log_lift,deaths,"C(occupation_group, Treatment('screen'))[T.music]",-0.048448,-0.11497,0.018073,0.15345,1902,0.32986
+log_lift,deaths,"C(occupation_group, Treatment('screen'))[T.other]",-0.24258,-0.58775,0.1026,0.16839,1902,0.32986
+log_lift,deaths,"C(occupation_group, Treatment('screen'))[T.politics and law]",-0.20537,-0.27479,-0.13595,6.6886e-09,1902,0.32986
+log_lift,deaths,"C(occupation_group, Treatment('screen'))[T.religion]",-0.27922,-0.70948,0.15103,0.20339,1902,0.32986
+log_lift,deaths,"C(occupation_group, Treatment('screen'))[T.science and academia]",-0.16186,-0.22771,-0.096001,1.4563e-06,1902,0.32986
+log_lift,deaths,"C(occupation_group, Treatment('screen'))[T.sport]",-0.22189,-0.29796,-0.14581,1.0889e-08,1902,0.32986
+log_lift,deaths,"C(occupation_group, Treatment('screen'))[T.visual arts and design]",-0.078552,-0.18466,0.027557,0.14679,1902,0.32986
+log_lift,deaths,"C(occupation_group, Treatment('screen'))[T.writing and journalism]",-0.033811,-0.12051,0.052893,0.44468,1902,0.32986
+log_lift,deaths,log_baseline,-0.048477,-0.064624,-0.03233,3.9985e-09,1902,0.32986
+log_lift,deaths,age_at_event,-0.01985,-0.021965,-0.017736,1.2986e-75,1902,0.32986
+log_lift,deaths,year,-0.010077,-0.017506,-0.0026472,0.0078533,1902,0.32986

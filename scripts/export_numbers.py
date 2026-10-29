@@ -18,6 +18,10 @@ def x2(v):
     return f"{v:.2f}"
 
 
+def pf(p):
+    return "< 0.001" if p < 0.001 else f"= {p:.3f}"
+
+
 def comma(n):
     return f"{int(n):,}"
 
@@ -35,7 +39,7 @@ def build():
     m = pd.read_csv(RES / "measures.csv")
     fam = pd.read_csv(TAB / "by_event_group.csv").set_index("group")
     occ = pd.read_csv(TAB / "by_occupation.csv")
-    occ_d = occ[(occ.event_type == "death") & (occ.n >= 15)].set_index("occupation_group")
+    occ_d = occ[(occ.event_type == "death") & (occ.n >= 15) & (occ.occupation_group != "other")].set_index("occupation_group")
 
     excl = {(r["event_type"], r["excluded_reason"]): r["n"] for r in c["excluded"]}
     drops = {}
@@ -96,9 +100,9 @@ def build():
         "winBiAward": pct(w["award"]["biexp"]), "winPowAward": pct(w["award"]["pow"]), "winExpAward": pct(w["award"]["exp"]),
         "dAicBiPow": f"{-a['biexp_minus_pow_median']:.0f}", "dAicBiExp": f"{-a['biexp_minus_exp_median']:.0f}",
         "shareBiBy10": pct(a["share_biexp_beats_pow_by_10"]), "sharePowBeatsExp": pct(a["share_pow_beats_exp"]),
-        "tau1": f"{a['bi_tau1_median']:.1f}", "tau2": f"{a['bi_tau2_median']:.0f}",
-        "tau1Death": f"{a['bi_tau1_median_death']:.1f}", "tau2Death": f"{a['bi_tau2_median_death']:.0f}",
-        "tau1Award": f"{a['bi_tau1_median_award']:.1f}", "tau2Award": f"{a['bi_tau2_median_award']:.0f}",
+        "tau1": f"{a['bi_tau1_median']:.1f}", "tau2": f"{a['bi_tau2_median']:,.0f}",
+        "tau1Death": f"{a['bi_tau1_median_death']:.1f}", "tau2Death": f"{a['bi_tau2_median_death']:,.0f}",
+        "tau1Award": f"{a['bi_tau1_median_award']:.1f}", "tau2Award": f"{a['bi_tau2_median_award']:,.0f}",
         "biW": pct(a["bi_w_median"], 1), "powAlpha": f"{a['pow_alpha_median']:.2f}",
         "fitDays": f"{a['fit_n_median']:.0f}", "nSpikeNotFitted": a["n_spike_not_fitted"],
         # checks
@@ -115,13 +119,13 @@ def build():
         r = rg[k]
         aw_e, base_e = eff(r["award"]), eff(r["log_baseline"])
         n[f"reg_{k}_n"] = comma(r["n"]); n[f"reg_{k}_r2"] = f"{r['r2']:.2f}"
-        n[f"reg_{k}_award"] = f"{aw_e[0]:+.0f}"; n[f"reg_{k}_award_p"] = f"{aw_e[1]:.3f}"
-        n[f"reg_{k}_base"] = f"{base_e[0]:+.0f}"; n[f"reg_{k}_base_p"] = f"{base_e[1]:.3f}"
+        n[f"reg_{k}_award"] = f"{aw_e[0]:+.0f}"; n[f"reg_{k}_award_p"] = pf(aw_e[1])
+        n[f"reg_{k}_base"] = f"{base_e[0]:+.0f}"; n[f"reg_{k}_base_p"] = pf(base_e[1])
         ag = eff(r["age"])
-        n[f"reg_{k}_age"] = f"{ag[0]:+.1f}"; n[f"reg_{k}_age_p"] = f"{ag[1]:.3f}"
+        n[f"reg_{k}_age"] = f"{ag[0]:+.1f}"; n[f"reg_{k}_age_p"] = pf(ag[1])
         n[f"reg_{k}_dn"] = comma(r["deaths_n"]); n[f"reg_{k}_dr2"] = f"{r['deaths_r2']:.2f}"
         yr = eff(r["year"])
-        n[f"reg_{k}_year"] = f"{yr[0]:+.1f}"; n[f"reg_{k}_year_p"] = f"{yr[1]:.3f}"
+        n[f"reg_{k}_year"] = f"{yr[0]:+.1f}"; n[f"reg_{k}_year_p"] = pf(yr[1])
     # groups, for copy: highest and lowest late share and lift among occupations with n >= 15
     if len(occ_d):
         hi, lo = occ_d.late_share_median.idxmax(), occ_d.late_share_median.idxmin()
@@ -144,8 +148,106 @@ def build():
                         f'<td class="num">{r.peak_ratio_median:.0f}x</td><td class="num">{r.half_life_median:.0f}</td>'
                         f'<td class="num">{100 * r.late_share_median:.0f}%</td><td class="num">{r.lift_median:.2f}x</td></tr>')
     n["groupRows"] = "\n".join(rows)
+    prose(n, s, m)
     (ROOT / "site/numbers.json").write_text(json.dumps(n, indent=1, ensure_ascii=False) + "\n")
     print(f"{len(n)} numbers written")
+
+
+def prose(n, s, m):
+    """Sentences whose direction depends on the results, so a rerun cannot leave a claim
+    pointing the wrong way. Numbers come from n; nothing is typed by hand."""
+    f = lambda v: float(str(v).replace(",", ""))
+    above = lambda v: "above" if f(v) > 1 else "below"
+    age = f(n["reg_lift_age"])
+    n["agePhrase"] = f"{abs(age):.1f}% {'less' if age < 0 else 'more'} lift"
+    aw = f(n["reg_lift_award"])
+    n["awardPhrase"] = f"{abs(aw):.0f}% {'above' if aw > 0 else 'below'} deaths"
+    n["startName"] = "Elizabeth II" if (m.title == "Elizabeth II").any() else m.sort_values("peak", ascending=False).title.iloc[0]
+    one = f(n["deathHalfLife"]) == 1
+    hl = f"{n['deathHalfLife']} day" if one else f"{n['deathHalfLife']} days"
+    n["headline"] = (f"Half the extra attention a death brings is gone within {hl} of the peak. A year later the page still draws "
+                     f"{n['deathLift']} times its old traffic (median of {n['deathLiftN']} deaths). Awards fade just as fast at first, and where they "
+                     f"settle depends on how known the winner was: Nobel laureates keep {n['nobelLift']} times their old traffic, Oscar winners {n['oscarLift']} times.")
+    n["deathHalfPhrase"] = f"within {hl}"
+    n["fadeTitle"] = f"The spike is gone within days; a residue stays"
+    n["fadeText"] = (f"On the median death the page draws {n['deathPeakX']} times its usual traffic on the peak day, which is the day after the death "
+                     f"in {n['deathPeakDay1']}% of cases. The averaged curve loses half its excess in {n['avgDeathHalf']} and nine tenths in "
+                     f"{n['avgDeathTenth']}, and sits at {n['avgDeath30']} times baseline a month later and {n['avgDeathEnd']} times in the last month "
+                     f"of the year. Awards peak at {n['avgAwardPeak']} times and lose nine tenths in {n['avgAwardTenth']}. Deaths jump again on day +365, the anniversary; "
+                     f"awards climb in the last week of the year as the next year's prize comes round.")
+    n["avgAlt"] = (f"Median views relative to baseline for deaths and awards, days -60 to +365. Deaths peak at {n['avgDeathPeak']} times baseline and "
+                   f"settle near {n['avgDeathEnd']}; awards peak at {n['avgAwardPeak']} times and settle near {n['avgAwardEnd']}.")
+    n["curveTitle"] = "Two exponentials fit better than one, or a power law"
+    n["curveText"] = (f"Three curves were fitted to each event's excess views after the peak: an exponential, a power law, and the biexponential "
+                      f"(a sum of two exponentials) that Candia et al. (2019) found in the decay of attention to songs, films and biographies over years. "
+                      f"The biexponential has the lowest AIC for {n['winBiDeath']}% of {n['nFittedDeath']} deaths and {n['winBiAward']}% of "
+                      f"{n['nFittedAward']} awards, with a median margin of {n['dAicBiPow']} AIC points over the power law. Its fast part has a median "
+                      f"time constant of {n['tau1']} days; the slow part's is {n['tau2']} days, so long that within a year it is close to a flat step "
+                      f"above the old baseline.")
+    n["winsAlt"] = f"The biexponential wins {n['winBiAll']}% of {n['nFitted']} events, the power law {n['winPowAll']}% and the exponential {n['winExpAll']}%."
+    dl, nl, ol = f(n["deathLift"]), f(n["nobelLift"]), f(n["oscarLift"])
+    n["settleTitle"] = ("A death leaves a page busier than before" if dl > 1 else "After a death, a page drops back below its old traffic") + \
+                       (f"; an Oscar leaves it quieter" if ol < 1 else "")
+    n["settleText"] = (f"A year after a death the median page draws {n['deathLift']} times its old traffic, and {n['deathLiftAbove1']}% of pages sit above "
+                       f"their baseline. Awards spread far wider. Nobel laureates, with a median of {n['nobelBase']} views a day beforehand, keep "
+                       f"{n['nobelLift']} times that. Academy Award winners start from {n['oscarBase']} a day, already raised by awards season, and end "
+                       f"the year at {n['oscarLift']} times it. Among deaths, each extra year of age at death goes with {n['agePhrase']}"
+                       f" (p {n['reg_lift_age_p']}), and pages that were busier beforehand gain "
+                       f"{'less' if f(n['reg_lift_base']) < 0 else 'more'}.")
+    n["liftAlt"] = (f"Distribution of lift. Deaths cluster near one, median {n['deathLift']}; awards spread from well below one to far above, "
+                    f"median {n['awardLift']}.")
+    wide = abs(f(n['nobelLift']) - f(n['oscarLift'])) > f(n['occLiftHiV']) - f(n['occLiftLoV'])
+    n["whoTitle"] = "Which prize matters more than what the person did" if wide else "Occupation and prize both matter"
+    n["whoText"] = (f"Among deaths, the share of the first year's extra views that arrive after the first week runs from {n['occLateLoV']}% "
+                    f"({n['occLateLo']}) to {n['occLateHiV']}% ({n['occLateHi']}), and median lift from {n['occLiftLoV']} times ({n['occLiftLo']}) "
+                    f"to {n['occLiftHiV']} times ({n['occLiftHi']}). "
+                    + ("The gap between Nobel and Oscar winners is wider than any gap between occupations."
+                       if abs(f(n['nobelLift']) - f(n['oscarLift'])) > f(n['occLiftHiV']) - f(n['occLiftLoV']) else
+                       "Those gaps are as wide as the gaps between prizes."))
+    n["botPhrase"] = (f"changes {n['botEvents']} events and {n['botHalfChanged']} half-{'life' if n['botHalfChanged'] == 1 else 'lives'}; median lift is {n['botLiftDeath']} for deaths "
+                      f"with the cap")
+    n["halfLifeLimit"] = (f"The half-life as specified saturates: the spike is narrower than the 7-day smoothing window, so the half-life is one day "
+                          f"for {n['deathHalfOne']}% of deaths. With a 3-day window the median is {n['halfW3']} days, with 14 days {n['halfW14']}. "
+                          f"The share of extra views after week one, and the fitted curves, carry the comparisons instead.")
+    # write-up
+    n["heroSub"] = (f"Daily English Wikipedia views around {n['nDeaths']} deaths and {n['nAwards']} major awards, 2016 to 2025. On the median "
+                    f"death a page draws {n['deathPeakX']} times its usual traffic at the peak, and half the excess is gone within {hl}. The "
+                    f"fade follows two exponentials, a fast one with a time constant of about {n['tau1']} days and a slow one that barely moves "
+                    f"within a year. A year on, the page draws {n['deathLift']} times its old traffic.")
+    n["f1Title"] = "Half the spike is gone within a day or two"
+    n["f1Text"] = n["fadeText"] + (f" Measured as specified, the half-life is {n['deathHalfLife']} day for deaths and {n['awardHalfLife']} for awards; "
+                  f"it is one day in {n['deathHalfOne']}% of deaths with a spike. Most of the attention comes at once: only {n['deathLate']}% "
+                  f"of a death's first-year excess views (median) arrive after the first week.")
+    n["f2Text"] = n["curveText"] + (f" The power law still beats the exponential in {n['sharePowBeatsExp']}% of events, which is what a "
+                  f"long tail looks like. The two shapes agree with Candia et al. on form; their time scale is years since publication, "
+                  f"this one is days since an event.")
+    n["f3Title"] = n["settleTitle"]
+    n["f3Text"] = n["settleText"].split(" Among deaths")[0]
+    n["f3Reg"] = (f"A regression of log lift on event type, log baseline, occupation group and year (OLS, HC3 errors, n = {n['reg_lift_n']}, "
+                  f"R² = {n['reg_lift_r2']}) puts awards {n['awardPhrase']} at the same prior traffic "
+                  f"(p {n['reg_lift_award_p']}). Among deaths, with age added (n = {n['reg_lift_dn']}, R² = {n['reg_lift_dr2']}), each extra "
+                  f"year of age at death goes with {n['agePhrase']} (p {n['reg_lift_age_p']}). The same regression for log "
+                  f"half-life explains almost nothing (R² = {n['reg_half_life_r2']}), because the half-life barely varies.")
+    n["f4Title"] = n["whoTitle"]
+    n["f4Text"] = n["whoText"]
+    n["checksText"] = (f"Bot leakage: capping any day above 50 times the median of its six neighbors touches {n['botEvents']} events and changes "
+                       f"{n['botHalfChanged']} half-{'life' if n['botHalfChanged'] == 1 else 'lives'}; median lift with the cap is {n['botLiftDeath']} for deaths and {n['botLiftAward']} for awards. "
+                       f"Renames: {n['nRenamed']} events were dropped because the article moved to a new title inside the window. Smoothing: the "
+                       f"median half-life is {n['halfW3']} days with a 3-day window, {n['halfW7']} with 7 and {n['halfW14']} with 14. The spike is "
+                       f"narrower than the window, so the specified half-life is one day for most events; the late-share measure and the fitted "
+                       f"curves are less sensitive to that choice. Day of week: the median page's busiest weekday draws {n['dowAmp']} "
+                       f"times its quietest, which is why every series is adjusted before measuring.")
+    n["readmeResults"] = "\n".join([
+        f"- Peak: on the median death a page draws {n['deathPeakX']} times its baseline at the peak (middle half {n['deathPeakXlo']} to {n['deathPeakXhi']} times); the peak is the day after the death in {n['deathPeakDay1']}% of cases.",
+        f"- Half-life, as specified: {n['deathHalfLife']} day for deaths and {n['awardHalfLife']} for awards; one day for {n['deathHalfOne']}% of deaths with a spike. With 3-day smoothing the median is {n['halfW3']} days.",
+        f"- After week one: {n['deathLate']}% of a death's first-year excess views (median) arrive more than a week after the peak; for awards {n['awardLate']}%.",
+        f"- Curve shape: the biexponential has the lowest AIC for {n['winBiAll']}% of {n['nFitted']} fitted events ({n['winBiDeath']}% of deaths, {n['winBiAward']}% of awards); median fast time constant {n['tau1']} days.",
+        f"- Lift a year later: {n['deathLift']} times baseline for deaths ({n['deathLiftAbove1']}% above 1), {n['nobelLift']} for Nobel laureates, {n['oscarLift']} for Academy Award winners.",
+        f"- Among deaths, each extra year of age at death goes with {n['agePhrase']} (p {n['reg_lift_age_p']}).",
+    ])
+    n["writeupResults"] = "\n\n".join(["### The fade\n\n" + n["f1Text"], "### The curve\n\n" + n["f2Text"],
+                                        "### The aftermath\n\n" + n["settleText"] + "\n\n" + n["f3Reg"],
+                                        "### Who lasts\n\n" + n["whoText"]])
 
 
 if __name__ == "__main__":

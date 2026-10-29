@@ -54,3 +54,6 @@ h3{font-family:var(--font-head);font-size:1.25rem}
   h2{font-size:1.55rem}
   .wrap{padding-left:var(--s2);padding-right:var(--s2)}
 }
+
+/* Long API paths in prose wrap instead of widening the page. */
+p code,li code{overflow-wrap:anywhere}

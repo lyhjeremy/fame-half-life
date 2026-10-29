@@ -71,7 +71,7 @@
       el("line", { x1: L, x2: W - R, y1: y(t), y2: y(t) }, g);
       el("text", { x: L - 8, y: y(t) + 4, "text-anchor": "end", "font-size": 12 }, g, fmtTick(t));
     });
-    var xt = range === "zoom" ? [-14, 0, 14, 30, 45, 60] : [-60, 0, 30, 90, 180, 270, 365];
+    var xt = range === "zoom" ? (W < 520 ? [-14, 0, 30, 60] : [-14, 0, 14, 30, 45, 60]) : (W < 520 ? [-60, 0, 90, 180, 365] : [-60, 0, 30, 90, 180, 270, 365]);
     xt.forEach(function (t) { el("text", { x: x(t), y: H - B + 20, "text-anchor": "middle", "font-size": 12 }, svg, t === 0 ? "day 0" : (t > 0 ? "+" : "") + t); });
     el("line", { x1: x(0), x2: x(0), y1: T, y2: H - B, "class": "base" }, svg);
     var pts = [];
@@ -304,7 +304,7 @@
       el("line", { x1: L, x2: W - R, y1: y(t), y2: y(t) }, g);
       el("text", { x: L - 8, y: y(t) + 4, "text-anchor": "end", "font-size": 12 }, g, t + "x");
     });
-    (range === "zoom" ? [-14, 0, 14, 30, 45, 60] : [-60, 0, 30, 90, 180, 270, 365]).forEach(function (t) {
+    (range === "zoom" ? (W < 520 ? [-14, 0, 30, 60] : [-14, 0, 14, 30, 45, 60]) : (W < 520 ? [-60, 0, 90, 180, 365] : [-60, 0, 30, 90, 180, 270, 365])).forEach(function (t) {
       el("text", { x: x(t), y: H - B + 20, "text-anchor": "middle", "font-size": 12 }, svg, t === 0 ? "day 0" : (t > 0 ? "+" : "") + t);
     });
     el("line", { x1: x(d0), x2: x(d1), y1: y(1), y2: y(1), "class": "s-gray s-dash" }, svg);
@@ -388,7 +388,7 @@
     clear(svg);
     var rows = D.groups.filter(function (g) { return g.n >= 15 && g[metric] != null; });
     rows.sort(function (a, b) { return (a.kind === b.kind ? 0 : a.kind === "event" ? -1 : 1) || b[metric] - a[metric]; });
-    var H = 30 + rows.length * 26 + 16, W = size(svg, H), L = W < 520 ? 150 : 210, R = 50, T = 10;
+    var H = 30 + rows.length * 26 + 32, W = size(svg, H), L = W < 520 ? 150 : 210, R = 50, T = 10;
     var vals = rows.map(function (r) { return r[metric]; }), lo = 0, hi = Math.max.apply(null, vals) * 1.1;
     var logx = metric === "lift";
     if (logx) { lo = Math.min(0.5, Math.min.apply(null, vals) * 0.8); hi = Math.max(2, hi); }
@@ -400,9 +400,13 @@
     ticks.forEach(function (t) { el("text", { x: x(t), y: H - 4, "text-anchor": "middle", "font-size": 11 }, svg, logx ? t + "x" : Math.round(100 * t) + "%"); });
     var prevKind = rows.length ? rows[0].kind : null;
     rows.forEach(function (r, i) {
-      var y0 = T + i * 26 + 12 + (r.kind !== rows[0].kind ? 10 : 0);
-      if (r.kind !== prevKind) { el("line", { x1: 0, x2: W - R, y1: y0 - 17, y2: y0 - 17, "class": "base" }, svg); prevKind = r.kind; }
-      var name = r.kind === "occupation" ? "Death: " + r.label : r.label;
+      var y0 = T + i * 26 + 12 + (r.kind !== rows[0].kind ? 26 : 0);
+      if (r.kind !== prevKind) {
+        el("line", { x1: 0, x2: W - R, y1: y0 - 34, y2: y0 - 34, "class": "base" }, svg);
+        el("text", { x: 0, y: y0 - 18, "font-size": 11, "font-style": "italic" }, svg, "Deaths, by occupation");
+        prevKind = r.kind;
+      }
+      var name = r.label;
       el("text", { x: L - 10, y: y0 + 4, "text-anchor": "end", "class": "lab", "font-size": 12 }, svg, name);
       el("line", { x1: x(logx ? lo : 0), x2: x(r[metric]), y1: y0, y2: y0, "class": "grid-l", stroke: "var(--rule)" }, svg);
       el("circle", { cx: x(r[metric]), cy: y0, r: 5, "class": r.kind === "event" && r.label !== "Death" ? "f-blue" : "f-red" }, svg);

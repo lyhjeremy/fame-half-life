@@ -1,0 +1,430 @@
+{
+ "counts": {
+  "candidates": {
+   "award": 188,
+   "death": 1995
+  },
+  "excluded": [
+   {
+    "event_type": "award",
+    "excluded_reason": "article created less than 30 days before the event",
+    "n": 5
+   },
+   {
+    "event_type": "death",
+    "excluded_reason": "article created less than 30 days before the event",
+    "n": 21
+   }
+  ],
+  "fetch_drops": [
+   {
+    "event_type": "award",
+    "drop_reason": "article renamed inside the window",
+    "n": 7
+   },
+   {
+    "event_type": "death",
+    "drop_reason": "article renamed inside the window",
+    "n": 58
+   }
+  ],
+  "no_baseline": {
+   "award": 1,
+   "death": 11
+  },
+  "analyzed": {
+   "award": 175,
+   "death": 1905
+  },
+  "analyzed_awards": {
+   "Academy Award": 50,
+   "Ballon d'Or": 9,
+   "Booker Prize": 9,
+   "Nobel Prize": 107
+  },
+  "title_changed_since_freeze": 0
+ },
+ "drops": {
+  "article renamed inside the window": 65,
+  "baseline under 1 view a day": 12
+ },
+ "eda": {
+  "all": {
+   "n": 2080,
+   "n_spike": 2013,
+   "share_no_spike": 0.03221153846153846,
+   "baseline_median": 195.28445908075045,
+   "baseline_p25": 48.08654400006063,
+   "baseline_p75": 871.9340474520861,
+   "peak_ratio_median": 203.58006659785065,
+   "peak_ratio_p25": 103.77741150717121,
+   "peak_ratio_p75": 421.1572580645161,
+   "peak_day_shares": {
+    "0": 0.3855769230769231,
+    "1": 0.42980769230769234,
+    "2": 0.11298076923076923,
+    "3": 0.07163461538461538
+   },
+   "half_life_median": 1.0,
+   "half_life_p25": 1.0,
+   "half_life_p75": 1.0,
+   "half_life_mean": 1.312624254473161,
+   "half_life_censored": 1,
+   "half_life_dist": {
+    "1.0": 1912,
+    "2.0": 14,
+    "3.0": 19,
+    "4.0": 23,
+    "5.0": 11,
+    "6.0": 4,
+    "7.0": 8,
+    "8.0": 4,
+    "9.0": 8,
+    "11.0": 1
+   },
+   "cum_half_median": 2.0,
+   "cum_half_p25": 1.0,
+   "cum_half_p75": 4.0,
+   "late_share_median": 0.2934179038700354,
+   "late_share_p25": 0.19272487430524537,
+   "late_share_p75": 0.41381424705526104,
+   "lift_n": 2080,
+   "lift_median": 1.0891328092857044,
+   "lift_p25": 0.8644377622284128,
+   "lift_p75": 1.497028527963547,
+   "lift_share_above1": 0.6014423076923077,
+   "lift_share_above2": 0.15,
+   "lift_median_spike": 1.0888119953863897,
+   "dow_amplitude_median": 1.4257567819616797
+  },
+  "death": {
+   "n": 1905,
+   "n_spike": 1839,
+   "share_no_spike": 0.03464566929133861,
+   "baseline_median": 201.98088296543108,
+   "baseline_p25": 53.74038461538463,
+   "baseline_p75": 822.3886950882727,
+   "peak_ratio_median": 200.13274336283186,
+   "peak_ratio_p25": 107.33306705094869,
+   "peak_ratio_p75": 387.53248811410464,
+   "peak_day_shares": {
+    "0": 0.3658792650918635,
+    "1": 0.4335958005249344,
+    "2": 0.12230971128608924,
+    "3": 0.07821522309711286
+   },
+   "half_life_median": 1.0,
+   "half_life_p25": 1.0,
+   "half_life_p75": 1.0,
+   "half_life_mean": 1.3409461663947797,
+   "half_life_censored": 0,
+   "half_life_dist": {
+    "1.0": 1740,
+    "2.0": 14,
+    "3.0": 18,
+    "4.0": 23,
+    "5.0": 11,
+    "6.0": 4,
+    "7.0": 8,
+    "8.0": 4,
+    "9.0": 8,
+    "11.0": 1
+   },
+   "cum_half_median": 2.0,
+   "cum_half_p25": 1.0,
+   "cum_half_p75": 3.0,
+   "late_share_median": 0.28598460407983867,
+   "late_share_p25": 0.19188865142733483,
+   "late_share_p75": 0.39558467855357576,
+   "lift_n": 1905,
+   "lift_median": 1.077200599237413,
+   "lift_p25": 0.8681860405062747,
+   "lift_p75": 1.402084515031197,
+   "lift_share_above1": 0.594225721784777,
+   "lift_share_above2": 0.10813648293963254,
+   "lift_median_spike": 1.0770186335403726,
+   "dow_amplitude_median": 1.4065934065934065
+  },
+  "award": {
+   "n": 175,
+   "n_spike": 174,
+   "share_no_spike": 0.005714285714285672,
+   "baseline_median": 73.61499274445029,
+   "baseline_p25": 13.731540250936803,
+   "baseline_p75": 9974.449881959112,
+   "peak_ratio_median": 816.6244343891401,
+   "peak_ratio_p25": 33.600086802532886,
+   "peak_ratio_p75": 3925.7107526367186,
+   "peak_day_shares": {
+    "0": 0.6,
+    "1": 0.38857142857142857,
+    "2": 0.011428571428571429
+   },
+   "half_life_median": 1.0,
+   "half_life_p25": 1.0,
+   "half_life_p75": 1.0,
+   "half_life_mean": 1.0115606936416186,
+   "half_life_censored": 1,
+   "half_life_dist": {
+    "1.0": 172,
+    "3.0": 1
+   },
+   "cum_half_median": 4.0,
+   "cum_half_p25": 1.0,
+   "cum_half_p75": 11.0,
+   "late_share_median": 0.43851699129693633,
+   "late_share_p25": 0.3066168304908137,
+   "late_share_p75": 0.5295192342843315,
+   "lift_n": 175,
+   "lift_median": 4.163069544364508,
+   "lift_p25": 0.641244786741604,
+   "lift_p75": 10.810267857142856,
+   "lift_share_above1": 0.68,
+   "lift_share_above2": 0.6057142857142858,
+   "lift_median_spike": 4.200053290700772,
+   "dow_amplitude_median": 1.8138230179597399
+  },
+  "Academy Award": {
+   "n": 50,
+   "share_no_spike": 0.0,
+   "half_life_median": 1.0,
+   "lift_median": 0.37841480614123013,
+   "peak_ratio_median": 25.383684694010476
+  },
+  "Ballon d'Or": {
+   "n": 9,
+   "share_no_spike": 0.0,
+   "half_life_median": 1.0,
+   "lift_median": 0.8682372223105929,
+   "peak_ratio_median": 4.296382728525215
+  },
+  "Booker Prize": {
+   "n": 9,
+   "share_no_spike": 0.0,
+   "half_life_median": 1.0,
+   "lift_median": 2.563380281690141,
+   "peak_ratio_median": 222.0
+  },
+  "Nobel Prize": {
+   "n": 107,
+   "share_no_spike": 0.009345794392523366,
+   "half_life_median": 1.0,
+   "lift_median": 8.781565656565656,
+   "peak_ratio_median": 2978.15
+  }
+ },
+ "model_wins": [
+  {
+   "sample": "all",
+   "n": 1947,
+   "exp": 0.008731381612737545,
+   "pow": 0.09142270159219312,
+   "biexp": 0.8998459167950693
+  },
+  {
+   "sample": "death",
+   "n": 1808,
+   "exp": 0.00663716814159292,
+   "pow": 0.08462389380530974,
+   "biexp": 0.9087389380530974
+  },
+  {
+   "sample": "award",
+   "n": 139,
+   "exp": 0.03597122302158273,
+   "pow": 0.17985611510791366,
+   "biexp": 0.7841726618705036
+  }
+ ],
+ "aic": {
+  "biexp_minus_pow_median": -25.31160189758242,
+  "biexp_minus_exp_median": -80.20892353402428,
+  "pow_minus_exp_median": -52.9325020428484,
+  "share_biexp_beats_pow_by_10": 0.7591165896250642,
+  "share_pow_beats_exp": 0.9758602978941961,
+  "bi_tau1_median": 5.449213875208834,
+  "bi_tau2_median": 1417.6438823784235,
+  "bi_w_median": 0.98736271015679,
+  "pow_alpha_median": 0.7436757756832997,
+  "fit_n_median": 259.0,
+  "n_fitted": 1947,
+  "n_spike_not_fitted": 66,
+  "bi_tau1_median_death": 5.611697637587358,
+  "bi_tau2_median_death": 1938.5002757812515,
+  "pow_alpha_median_death": 0.7618086612658366,
+  "bi_tau1_median_award": 4.565263061602238,
+  "bi_tau2_median_award": 394.7632930837548,
+  "pow_alpha_median_award": 0.6085863849181083
+ },
+ "avg_curve": {
+  "death": {
+   "peak_multiple": 140.44952380952378,
+   "peak_day": 1,
+   "half_day": 1,
+   "tenth_day": 5,
+   "day30": 1.9577165570175439,
+   "day90": 1.2608303677342825,
+   "day180": 1.1105717677086184,
+   "end_month": 1.0873634945397816
+  },
+  "award": {
+   "peak_multiple": 816.6244343891401,
+   "peak_day": 0,
+   "half_day": 1,
+   "tenth_day": 4,
+   "day30": 8.293643439584878,
+   "day90": 6.772727272727274,
+   "day180": 4.46875,
+   "end_month": 4.15767620179385
+  }
+ },
+ "regressions": {
+  "half_life": {
+   "award": {
+    "outcome": "log_half_life",
+    "sample": "all",
+    "term": "C(event_type, Treatment('death'))[T.award]",
+    "coef": -0.19562869239701547,
+    "ci_low": -0.253938023370961,
+    "ci_high": -0.13731936142306997,
+    "p": 4.842188025573581e-11,
+    "n": 2062,
+    "r2": 0.0292716859035711
+   },
+   "log_baseline": {
+    "outcome": "log_half_life",
+    "sample": "all",
+    "term": "log_baseline",
+    "coef": -0.01202664153531678,
+    "ci_low": -0.023912948237687533,
+    "ci_high": -0.00014033483294602703,
+    "p": 0.04735579607756029,
+    "n": 2062,
+    "r2": 0.0292716859035711
+   },
+   "year": {
+    "outcome": "log_half_life",
+    "sample": "all",
+    "term": "year",
+    "coef": -0.005248866768924572,
+    "ci_low": -0.013899362842864266,
+    "ci_high": 0.0034016293050151214,
+    "p": 0.23434187868025502,
+    "n": 2062,
+    "r2": 0.0292716859035711
+   },
+   "n": 2062,
+   "r2": 0.0292716859035711,
+   "age": {
+    "outcome": "log_half_life",
+    "sample": "deaths",
+    "term": "age_at_event",
+    "coef": 5.521046879148223e-05,
+    "ci_low": -0.001629710930582548,
+    "ci_high": 0.0017401318681655124,
+    "p": 0.948792747315382,
+    "n": 1886,
+    "r2": 0.032275156467727495
+   },
+   "deaths_n": 1886,
+   "deaths_r2": 0.032275156467727495
+  },
+  "lift": {
+   "award": {
+    "outcome": "log_lift",
+    "sample": "all",
+    "term": "C(event_type, Treatment('death'))[T.award]",
+    "coef": 0.9668718070629547,
+    "ci_low": 0.7725361670043381,
+    "ci_high": 1.1612074471215712,
+    "p": 1.8203977935410254e-22,
+    "n": 2080,
+    "r2": 0.2519982665362175
+   },
+   "log_baseline": {
+    "outcome": "log_lift",
+    "sample": "all",
+    "term": "log_baseline",
+    "coef": -0.13803488349250492,
+    "ci_low": -0.15997667089020717,
+    "ci_high": -0.11609309609480267,
+    "p": 6.240570997537311e-35,
+    "n": 2080,
+    "r2": 0.2519982665362175
+   },
+   "year": {
+    "outcome": "log_lift",
+    "sample": "all",
+    "term": "year",
+    "coef": -0.010363033222467802,
+    "ci_low": -0.02082146411289812,
+    "ci_high": 9.539766796251396e-05,
+    "p": 0.05212669384183004,
+    "n": 2080,
+    "r2": 0.2519982665362175
+   },
+   "n": 2080,
+   "r2": 0.2519982665362175,
+   "age": {
+    "outcome": "log_lift",
+    "sample": "deaths",
+    "term": "age_at_event",
+    "coef": -0.019850315408154504,
+    "ci_low": -0.02196469517040598,
+    "ci_high": -0.017735935645903027,
+    "p": 1.2986492688237473e-75,
+    "n": 1902,
+    "r2": 0.32986343879666513
+   },
+   "deaths_n": 1902,
+   "deaths_r2": 0.32986343879666513
+  }
+ },
+ "smoothing": [
+  {
+   "sample": "all",
+   "w3": 2.0,
+   "w7": 1.0,
+   "w14": 1.0,
+   "w3_mean": 1.959244532803181,
+   "w7_mean": 1.312624254473161,
+   "w14_mean": 1.4701789264413518
+  },
+  {
+   "sample": "death",
+   "w3": 2.0,
+   "w7": 1.0,
+   "w14": 1.0,
+   "w3_mean": 1.9961935834692768,
+   "w7_mean": 1.3409461663947797,
+   "w14_mean": 1.5144100054377378
+  },
+  {
+   "sample": "award",
+   "w3": 2.0,
+   "w7": 1.0,
+   "w14": 1.0,
+   "w3_mean": 1.5664739884393064,
+   "w7_mean": 1.0115606936416186,
+   "w14_mean": 1.0
+  }
+ ],
+ "bot_check": {
+  "events_with_capped_day": 31,
+  "capped_days_total": 34,
+  "half_life_median_capped": {
+   "death": 1.0,
+   "award": 1.0
+  },
+  "lift_median_capped": {
+   "death": 1.077200599237413,
+   "award": 4.163069544364508
+  },
+  "spike_share_capped": {
+   "death": 0.9653543307086614,
+   "award": 0.9942857142857143
+  },
+  "half_life_changed": 1
+ },
+ "last_data_day": "2026-10-27"
+}
