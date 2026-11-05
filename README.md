@@ -1,6 +1,8 @@
 # Fame Half-Life
 
-How fast does the world stop looking someone up? This project measures the spike in daily English Wikipedia pageviews around 1,905 deaths and 178 major awards from 2016 to October 2025, tests which curve the fade follows, and checks where attention settles a year later. The page also has a live box that fetches any article's views from Wikimedia and fits the same curves in your browser.
+How fast does the world stop looking someone up after a death or a major award? Across 1,905 deaths and 178 awards (daily English Wikipedia pageviews, 2016 to October 2025), half the extra traffic is gone in a median 2 days, and a year later a page draws 1.08 times its pre-event baseline after a death and 4.20 times after an award.
+
+The project also tests which curve the fade follows, and the site has a live box that fetches any article's views from Wikimedia and fits the same curves in your browser.
 
 [Interactive site](https://lyhjeremy.github.io/fame-half-life/) · [Write-up](https://lyhjeremy.github.io/fame-half-life/overview/) · [Long-form notes](writeup.md) · [Privacy](https://lyhjeremy.github.io/fame-half-life/privacy/)
 

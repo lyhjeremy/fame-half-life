@@ -258,6 +258,15 @@
   .tbl table { min-width: 560px; }
   .tbl td.num, .tbl th.num { font-family: var(--mono); text-align: right; white-space: nowrap; }
   .exhibit img { max-width: 100%; height: auto; display: block; }
+
+  .glance { margin: 34px 0 0; border-top: 2px solid var(--ink); border-bottom: 1px solid var(--rule); padding: 12px 0 6px; }
+  .glance h2 { font-family: var(--mono); font-size: 12.5px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; max-width: none; }
+  .glance dl { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: 0 32px; }
+  .glance dl > div { display: grid; grid-template-columns: 8.5rem minmax(0, 1fr); gap: 0 14px; padding: 9px 0; border-top: 1px dashed var(--rule); }
+  .glance dt { font-family: var(--display); font-style: italic; font-size: 16px; color: var(--accent); }
+  .glance dd { margin: 0; font-family: var(--sans); font-size: 15px; line-height: 1.5; color: var(--ink); }
+  .glance .hit dd { font-weight: 600; }
+  @media (max-width: 520px) { .glance dl > div { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -284,6 +293,18 @@
       <div class="claim"><div class="n">2 days</div><p>until half the extra traffic is gone after a death (median, smoothed over a week). 65 deaths spike late, when the news came days after.</p></div>
       <div class="claim"><div class="n">1.08x</div><p>the old traffic, a year after a death (median). After an award it is 4.20x; after a Nobel Prize, 8.81x.</p></div>
     </div>
+
+    <section class="glance" aria-labelledby="glance-h">
+      <h2 id="glance-h">At a glance</h2>
+      <dl>
+        <div><dt>Question</dt><dd>After a death or a major award, how fast do Wikipedia readers stop looking the person up, and where does traffic settle a year later?</dd></div>
+        <div><dt>Data</dt><dd>Daily English Wikipedia pageviews (user agents only), days &minus;60 to +365, for 1,905 deaths and 178 awards from 2016 to October 2025. The event list was committed before any pageview was fetched.</dd></div>
+        <div><dt>Method</dt><dd>Half-life on 7-day smoothed excess views; exponential, power-law and biexponential fits compared by AIC; OLS with HC3 errors for lift (n = 2,083).</dd></div>
+        <div><dt>Compared against</dt><dd>Each page's own baseline, the median of days &minus;60 to &minus;8. On 150 simulated series per model (noise 0.15) the model selector names the true model 87% (exponential), 95% (power law) and 100% (biexponential) of the time.</dd></div>
+        <div class="hit"><dt>Result</dt><dd>Median half-life 2 days. A year on, 1.08 times the baseline after a death, 4.20 times after an award (Nobel 8.81).</dd></div>
+        <div><dt>Main limit</dt><dd>English Wikipedia only, and nothing separates a death or prize from other news about the same person. Only 9 Ballon d'Or and 9 Booker events.</dd></div>
+      </dl>
+    </section>
   </section>
 </div>
 
